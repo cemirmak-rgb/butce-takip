@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#f0faf5">
+<title>BütçeTakip</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0faf5;--bg2:#fff;--card:#fff;--border:#e2f0ea;
+  --ink:#1a2e23;--ink2:#4a6658;--muted:#8fada0;
+  --accent:#1db863;--accent-soft:#e6f9ee;
+  --red:#e8414a;--red-soft:#fdeeed;
+  --amber:#f59e0b;--amber-soft:#fef3c7;
+  --purple:#7c3aed;--purple-soft:#f3eeff;
+  --blue:#3b82f6;--blue-soft:#eff6ff;
+  --shadow:0 2px 16px rgba(29,184,99,0.08);
+  --shadow-lg:0 8px 40px rgba(29,184,99,0.14);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(29,184,99,0.12),transparent);pointer-events:none;z-index:0}
+.app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding-bottom:88px}
+
+.sync-bar{display:flex;align-items:center;gap:8px;padding:8px 20px;font-size:11px;font-weight:600;transition:all .3s}
+.sync-bar.ok{color:var(--accent)}.sync-bar.syncing{color:var(--amber)}.sync-bar.err{color:var(--red)}
+.sync-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sync-bar.ok .sync-dot{background:var(--accent);animation:pulse 2s infinite}
+.sync-bar.syncing .sync-dot{background:var(--amber);animation:spin2 1s linear infinite}
+.sync-bar.err .sync-dot{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+@keyframes spin2{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+header{padding:4px 20px 0;display:flex;align-items:center;justify-content:space-between}
+.header-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--ink)}
+.header-title span{color:var(--accent);font-style:italic}
+.month-nav{display:flex;align-items:center;gap:6px}
+.month-btn{background:var(--card);border:1px solid var(--border);border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--ink2)}
+.month-btn:active{background:var(--accent-soft)}
+.month-label-btn{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ink2);cursor:pointer}
+
+.balance-card{margin:14px 20px 0;background:var(--ink);border-radius:24px;padding:22px;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
+.balance-card::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(29,184,99,.25),transparent 65%);border-radius:50%}
+.balance-label{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:2px}
+.balance-amount{font-family:'DM Serif Display',serif;font-size:38px;color:#fff;margin:4px 0 2px;letter-spacing:-1px;position:relative;z-index:1}
+.balance-amount.negative{color:#ff8087}
+.balance-sub{font-size:12px;color:rgba(255,255,255,.4);position:relative;z-index:1}
+.balance-row{display:flex;gap:8px;margin-top:16px;position:relative;z-index:1}
+.balance-stat{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:9px 10px}
+.bstat-label{font-size:9px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px}
+.bstat-value{font-size:13px;font-weight:600;margin-top:3px;color:#fff}
+.bstat-value.income{color:#6ee7a0}.bstat-value.expense{color:#ff8087}.bstat-value.cc{color:#fbbf24}.bstat-value.loan{color:#93c5fd}
+
+.budget-section{margin:12px 20px 0;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+.budget-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.budget-title{font-size:13px;font-weight:600;color:var(--ink2)}
+.budget-pct{font-size:13px;font-weight:700}
+.bar-track{height:9px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:5px}
+.bar-fill{height:100%;border-radius:99px;background:var(--accent);transition:width .6s cubic-bezier(.34,1.56,.64,1)}
+.bar-fill.warn{background:var(--amber)}.bar-fill.danger{background:var(--red)}
+.bar-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+
+.tabs{display:flex;gap:5px;margin:12px 20px 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;background:var(--card);border:1.5px solid var(--border);border-radius:11px;padding:9px 10px;text-align:center;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+.section{padding:0 20px;margin-top:14px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.section-title{font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);font-weight:600}
+.add-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;box-shadow:0 2px 8px rgba(29,184,99,.3)}
+.add-btn:active{transform:scale(.95)}
+.add-btn.purple{background:var(--purple);box-shadow:0 2px 8px rgba(124,58,237,.3)}
+.add-btn.blue{background:var(--blue);box-shadow:0 2px 8px rgba(59,130,246,.3)}
+
+/* TX ITEMS */
+.tx-list{display:flex;flex-direction:column;gap:8px}
+.tx-item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;animation:fadeUp .35s ease both}
+.tx-item.auto-item{border-left:3px solid var(--accent)}
+.tx-emoji{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.tx-info{flex:1;min-width:0}
+.tx-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.tx-right{text-align:right;flex-shrink:0}
+.tx-amount{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.tx-amount.income{color:var(--accent)}.tx-amount.expense{color:var(--red)}
+.tx-del{width:26px;height:26px;background:var(--red-soft);border:none;border-radius:8px;color:var(--red);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tx-del:active{background:var(--red);color:#fff}
+
+/* CC ITEMS */
+.cc-list{display:flex;flex-direction:column;gap:10px}
+.cc-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;animation:fadeUp .3s ease both;box-shadow:var(--shadow)}
+.cc-item.paid{opacity:.55}
+.cc-top{display:flex;align-items:center;gap:10px}
+.cc-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+.cc-info{flex:1;min-width:0}
+.cc-bank{font-size:14px;font-weight:700}
+.cc-holder{font-size:11px;color:var(--muted);margin-top:1px}
+.cc-right{text-align:right;flex-shrink:0}
+.cc-amount{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--red)}
+.cc-amount.paid-amt{color:var(--accent)}
+.cc-status-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:20px;font-size:11px;font-weight:700}
+.status-badge.unpaid{background:var(--red-soft);color:var(--red)}
+.status-badge.paid{background:var(--accent-soft);color:var(--accent)}
+.pay-btn{background:var(--red);color:#fff;border:none;border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+.pay-btn:active{transform:scale(.95)}.pay-btn.undo{background:var(--muted)}
+.cc-del{background:var(--red-soft);border:none;border-radius:8px;color:var(--red);width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;flex-shrink:0}
+.cc-del:active{background:var(--red);color:#fff}
+
+/* LOAN ITEM */
+.loan-item{background:var(--card);border:1px solid var(--blue);border-radius:16px;padding:14px;animation:fadeUp .3s ease both;box-shadow:0 2px 12px rgba(59,130,246,.1)}
+.loan-top{display:flex;align-items:center;gap:10px}
+.loan-icon{width:42px;height:42px;border-radius:12px;background:var(--blue-soft);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.loan-info{flex:1}
+.loan-name{font-size:14px;font-weight:700}
+.loan-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.loan-amount{font-size:17px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums}
+.loan-status-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+
+/* RECURRING ITEMS */
+.rec-list{display:flex;flex-direction:column;gap:10px}
+.rec-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;animation:fadeUp .3s ease both}
+.rec-top{display:flex;align-items:center;gap:10px}
+.rec-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.rec-info{flex:1;min-width:0}
+.rec-name{font-size:14px;font-weight:700}
+.rec-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.rec-right{text-align:right;flex-shrink:0}
+.rec-amount{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.rec-amount.expense{color:var(--red)}.rec-amount.income{color:var(--accent)}
+.rec-actions{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.rec-edit-btn{flex:1;background:var(--accent-soft);color:var(--accent);border:none;border-radius:9px;padding:8px;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer}
+.rec-del-btn{background:var(--red-soft);color:var(--red);border:none;border-radius:9px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}
+
+/* CAT */
+.cat-breakdown{display:flex;flex-direction:column;gap:10px}
+.cat-row{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;animation:fadeUp .35s ease both}
+.cat-row-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.cat-row-icon{font-size:20px}.cat-row-name{flex:1;font-size:14px;font-weight:600}
+.cat-row-amount{font-size:14px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums}
+.cat-bar-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:99px;transition:width .5s ease}
+
+.cc-warning{display:flex;align-items:center;gap:8px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.25);border-radius:12px;padding:10px 14px;margin:10px 20px 0;font-size:12px;color:#92400e;font-weight:500}
+.cc-warning.hidden{display:none}
+
+.empty{text-align:center;padding:28px 20px;color:var(--muted)}
+.empty .eicon{font-size:36px;margin-bottom:8px}
+.empty p{font-size:13px;line-height:1.6}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(26,46,35,.6);backdrop-filter:blur(6px);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .3s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--bg2);border-radius:28px 28px 0 0;padding:0 22px 34px;width:100%;transform:translateY(100%);transition:transform .35s cubic-bezier(.34,1.3,.64,1);max-height:92vh;overflow-y:auto}
+.overlay.open .modal{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 18px}
+.modal-title{font-family:'DM Serif Display',serif;font-size:21px;margin-bottom:18px}
+.field-label{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.field-input{background:var(--bg);border:1.5px solid var(--border);border-radius:13px;padding:13px 15px;color:var(--ink);font-size:16px;font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color .2s;margin-bottom:14px}
+.field-input:focus{border-color:var(--accent)}
+.field-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238fada0' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.amount-input{font-size:24px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+.type-toggle{display:flex;background:var(--bg);border-radius:13px;padding:4px;margin-bottom:18px}
+.type-btn{flex:1;padding:9px;border:none;border-radius:9px;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;background:transparent;color:var(--muted)}
+.type-btn.active-income{background:var(--accent-soft);color:var(--accent)}
+.type-btn.active-expense{background:var(--red-soft);color:var(--red)}
+.cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.cat-btn{background:var(--bg);border:1.5px solid var(--border);border-radius:13px;padding:9px 5px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:all .15s}
+.cat-btn .cat-em{font-size:20px}.cat-btn .cat-lbl{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:center}
+.cat-btn.selected{border-color:var(--accent);background:var(--accent-soft)}
+.cat-btn.selected .cat-lbl{color:var(--accent)}
+.bank-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+.bank-btn{background:var(--bg);border:1.5px solid var(--border);border-radius:13px;padding:11px 9px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .15s}
+.bank-btn .b-icon{font-size:20px}
+.bank-btn .b-name{font-size:12px;font-weight:700;color:var(--ink)}
+.bank-btn .b-holder{font-size:10px;color:var(--muted)}
+.bank-btn.selected{border-color:var(--accent);background:var(--accent-soft)}
+.bank-btn.selected .b-name{color:var(--accent)}
+.save-btn{background:var(--accent);color:#fff;border:none;border-radius:15px;padding:17px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;width:100%;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(29,184,99,.35);margin-top:4px}
+.save-btn:active{transform:scale(.98)}
+.save-btn.expense{background:var(--red);box-shadow:0 4px 16px rgba(232,65,74,.3)}
+.save-btn.cc-btn{background:#1a2e23}
+.save-btn.blue-btn{background:var(--blue);box-shadow:0 4px 16px rgba(59,130,246,.3)}
+.save-btn.purple-btn{background:var(--purple);box-shadow:0 4px 16px rgba(124,58,237,.3)}
+
+.freq-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.freq-btn{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;transition:all .15s;font-size:12px;font-weight:600;color:var(--ink2)}
+.freq-btn.selected{border-color:var(--purple);background:var(--purple-soft);color:var(--purple)}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:rgba(255,255,255,.96);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:10px 0 22px;z-index:50}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.nav-em{font-size:22px}.nav-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px}
+.nav-item.active .nav-lbl{color:var(--accent)}
+
+.loading-screen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:16px}
+.loading-screen.hidden{display:none}
+.loading-logo{font-family:'DM Serif Display',serif;font-size:32px}
+.loading-logo span{color:var(--accent);font-style:italic}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin2 1s linear infinite}
+.loading-txt{font-size:13px;color:var(--muted)}
+@keyframes alarmPop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes alarmPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,65,74,0.4)}70%{box-shadow:0 0 0 20px rgba(232,65,74,0)}}
+
+.divider-date{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:6px 0 4px;display:flex;align-items:center;gap:8px}
+.divider-date::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.hint-box{background:var(--amber-soft);border:1px solid rgba(245,158,11,.3);border-radius:12px;padding:10px 14px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-logo">Bütçe<span>Takip</span></div>
+  <div class="loading-spinner"></div>
+  <div class="loading-txt">Yükleniyor...</div>
+</div>
+
+<div class="app" id="app" style="display:none">
+
+  <div class="sync-bar ok" id="syncBar">
+    <div class="sync-dot"></div>
+    <span id="syncText">Canlı senkronizasyon aktif</span>
+  </div>
+
+  <header>
+    <div class="header-title">Bütçe<span>Takip</span></div>
+    <div class="month-nav">
+      <div class="month-btn" onclick="changeMonth(-1)">‹</div>
+      <div class="month-label-btn" id="monthLabel">—</div>
+      <div class="month-btn" onclick="changeMonth(1)">›</div>
+    </div>
+  </header>
+
+  <div class="balance-card">
+    <div class="balance-label">Net Bakiye</div>
+    <div class="balance-amount" id="balanceAmt">₺0</div>
+    <div class="balance-sub" id="balanceSub">Yükleniyor...</div>
+    <div class="balance-row">
+      <div class="balance-stat"><div class="bstat-label">Gelir</div><div class="bstat-value income" id="totalIncome">₺0</div></div>
+      <div class="balance-stat"><div class="bstat-label">Gider</div><div class="bstat-value expense" id="totalExpense">₺0</div></div>
+      <div class="balance-stat"><div class="bstat-label">KK Borç</div><div class="bstat-value cc" id="totalCC">₺0</div></div>
+      <div class="balance-stat"><div class="bstat-label">Kredi</div><div class="bstat-value loan" id="totalLoan">₺0</div></div>
+    </div>
+  </div>
+
+  <div class="cc-warning hidden" id="ccWarning">⚠️ <span id="ccWarningText"></span></div>
+
+  <div class="budget-section">
+    <div class="budget-header">
+      <div class="budget-title">📊 Aylık Bütçe</div>
+      <div class="budget-pct" id="budgetPct" style="color:var(--accent)">—</div>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="budgetBar" style="width:0%"></div></div>
+    <div class="bar-meta">
+      <span id="barSpent">Harcanan: ₺0</span>
+      <span id="barLimit" style="cursor:pointer;color:var(--accent);font-weight:600" onclick="openBudgetModal()">Bütçe belirle →</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tabTx"   onclick="window.switchTab('tx')">💸 İşlemler</div>
+    <div class="tab"        id="tabCC"   onclick="window.switchTab('cc')">💳 Kartlar</div>
+    <div class="tab"        id="tabLoan" onclick="window.switchTab('loan')">🏦 Krediler</div>
+    <div class="tab"        id="tabRec"  onclick="window.switchTab('rec')">🔁 Sabit Giderler</div>
+    <div class="tab"        id="tabCat"  onclick="window.switchTab('cat')">📂 Kategoriler</div>
+  </div>
+
+  <!-- TX PANEL -->
+  <div id="panelTx">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">İşlemler</div>
+        <button class="add-btn" onclick="openTxModal()">+ Ekle</button>
+      </div>
+      <div class="tx-list" id="txList"><div class="empty"><div class="eicon">💸</div><p>Yükleniyor...</p></div></div>
+    </div>
+  </div>
+
+  <!-- CC PANEL -->
+  <div id="panelCC" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Kredi Kartları</div>
+        <button class="add-btn" onclick="openCCModal()">+ Ekle</button>
+      </div>
+      <div class="cc-list" id="ccList"><div class="empty"><div class="eicon">💳</div><p>Yükleniyor...</p></div></div>
+    </div>
+  </div>
+
+  <!-- LOAN PANEL -->
+  <div id="panelLoan" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Krediler</div>
+        <button class="add-btn blue" onclick="openLoanModal()">+ Ekle</button>
+      </div>
+      <div id="loanList"><div class="empty"><div class="eicon">🏦</div><p>Yükleniyor...</p></div></div>
+    </div>
+  </div>
+
+  <!-- RECURRING PANEL -->
+  <div id="panelRec" style="display:none">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Sabit & Tekrar Eden</div>
+        <button class="add-btn purple" onclick="openRecModal()">+ Ekle</button>
+      </div>
+      <div class="hint-box">💡 Sabit giderler her ay otomatik olarak ilgili günlerde işlem listesine eklenir.</div>
+      <div class="rec-list" id="recList"><div class="empty"><div class="eicon">🔁</div><p>Yükleniyor...</p></div></div>
+    </div>
+  </div>
+
+  <!-- CAT PANEL -->
+  <div id="panelCat" style="display:none">
+    <div class="section">
+      <div class="section-header"><div class="section-title">Kategori Dağılımı</div></div>
+      <div class="cat-breakdown" id="catBreakdown"><div class="empty"><div class="eicon">📂</div><p>Yükleniyor...</p></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ALARM MODAL -->
+<div id="alarmModal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column">
+  <div style="background:#fff;border-radius:28px;padding:32px 28px;max-width:340px;width:90%;text-align:center;animation:alarmPop .4s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:56px;margin-bottom:8px" id="alarmEmoji">🔔</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:22px;color:#1a2e23;margin-bottom:8px">Son Ödeme Günü!</div>
+    <div style="font-size:15px;color:#4a6658;line-height:1.6;margin-bottom:6px" id="alarmTitle">—</div>
+    <div style="font-size:28px;font-weight:800;color:#e8414a;margin:12px 0;font-variant-numeric:tabular-nums" id="alarmAmount">—</div>
+    <div style="font-size:12px;color:#8fada0;margin-bottom:24px" id="alarmSub">Bugün son ödeme günü!</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="dismissAlarm()" style="flex:1;background:#f0faf5;color:#1a2e23;border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer">Tamam</button>
+      <button onclick="snoozeAlarm()" style="flex:1;background:#1db863;color:#fff;border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer">10 dk Ertele</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active"><div class="nav-em">🏠</div><div class="nav-lbl">Ana Sayfa</div></div>
+  <div class="nav-item"><div class="nav-em">📊</div><div class="nav-lbl">Raporlar</div></div>
+  <div class="nav-item"><div class="nav-em">⚙️</div><div class="nav-lbl">Ayarlar</div></div>
+</div>
+
+<!-- TX MODAL -->
+<div class="overlay" id="txOverlay" onclick="handleOverlay(event,'txOverlay')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Yeni İşlem</div>
+    <div class="type-toggle">
+      <button class="type-btn" id="btnExpense" onclick="setTxType('expense')">💸 Gider</button>
+      <button class="type-btn" id="btnIncome"  onclick="setTxType('income')">💰 Gelir</button>
+    </div>
+    <div class="field-label">Tutar (₺)</div>
+    <input class="field-input amount-input" type="number" id="txAmount" placeholder="0,00" min="0" step="0.01">
+    <div class="field-label">Açıklama</div>
+    <input class="field-input" type="text" id="txDesc" placeholder="Ne için?" maxlength="40">
+    <div class="field-label">Kategori</div>
+    <div class="cat-grid" id="catGrid"></div>
+    <div class="field-label">Tarih</div>
+    <input class="field-input" type="date" id="txDate">
+    <button class="save-btn" id="saveTxBtn" onclick="saveTx()">Kaydet</button>
+  </div>
+</div>
+
+<!-- CC MODAL -->
+<div class="overlay" id="ccOverlay" onclick="handleOverlay(event,'ccOverlay')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Kredi Kartı Borcu</div>
+    <div class="field-label">Kart Seç</div>
+    <div class="bank-grid" id="bankGrid"></div>
+    <div class="field-label">Tutar (₺)</div>
+    <input class="field-input amount-input" type="number" id="ccAmount" placeholder="0,00" min="0" step="0.01">
+    <div class="field-label">Son Ödeme Tarihi (opsiyonel)</div>
+    <input class="field-input" type="date" id="ccDueDate">
+    <div class="field-label">Not (opsiyonel)</div>
+    <input class="field-input" type="text" id="ccNote" placeholder="Aralık ekstresi..." maxlength="40">
+    <button class="save-btn cc-btn" onclick="saveCC()">💳 Kartı Ekle</button>
+  </div>
+</div>
+
+<!-- LOAN MODAL -->
+<div class="overlay" id="loanOverlay" onclick="handleOverlay(event,'loanOverlay')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="loanModalTitle">Kredi Ekle</div>
+    <div class="field-label">Kredi Adı (Banka)</div>
+    <input class="field-input" type="text" id="loanName" placeholder="örn: Halkbank" maxlength="30">
+    <div class="row2">
+      <div>
+        <div class="field-label">Aylık Taksit (₺)</div>
+        <input class="field-input amount-input" type="number" id="loanAmount" placeholder="0,00" min="0" step="0.01" style="font-size:18px">
+      </div>
+      <div>
+        <div class="field-label">Kalan / Toplam Taksit</div>
+        <input class="field-input" type="text" id="loanInstallments" placeholder="örn: 39/120" maxlength="10" style="text-align:center;font-weight:700">
+      </div>
+    </div>
+    <div class="field-label">Her Ayın Kaçında Ödeniyor?</div>
+    <input class="field-input" type="number" id="loanDay" placeholder="örn: 15" min="1" max="31">
+    <button class="save-btn blue-btn" id="saveLoanBtn" onclick="saveLoan()">🏦 Krediyi Kaydet</button>
+  </div>
+</div>
+
+<!-- RECURRING MODAL -->
+<div class="overlay" id="recOverlay" onclick="handleOverlay(event,'recOverlay')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="recModalTitle">Sabit Gider Ekle</div>
+    <div class="type-toggle">
+      <button class="type-btn" id="recBtnExpense" onclick="setRecType('expense')">💸 Gider</button>
+      <button class="type-btn" id="recBtnIncome"  onclick="setRecType('income')">💰 Gelir</button>
+    </div>
+    <div class="field-label">Açıklama</div>
+    <input class="field-input" type="text" id="recDesc" placeholder="örn: Temizlik Gideri" maxlength="40">
+    <div class="field-label">Tutar (₺)</div>
+    <input class="field-input amount-input" type="number" id="recAmount" placeholder="0,00" min="0" step="0.01">
+    <div class="field-label">Kategori</div>
+    <div class="cat-grid" id="recCatGrid"></div>
+    <div class="field-label">Tekrar Sıklığı</div>
+    <div class="freq-grid" id="freqGrid"></div>
+    <div id="weekdayRow" style="display:none">
+      <div class="field-label">Hangi Gün?</div>
+      <select class="field-input field-select" id="recWeekday">
+        <option value="1">Pazartesi</option>
+        <option value="2">Salı</option>
+        <option value="3">Çarşamba</option>
+        <option value="4">Perşembe</option>
+        <option value="5">Cuma</option>
+        <option value="6">Cumartesi</option>
+        <option value="0">Pazar</option>
+      </select>
+    </div>
+    <div id="monthdayRow" style="display:none">
+      <div class="field-label">Ayın Kaçında?</div>
+      <input class="field-input" type="number" id="recMonthDay" placeholder="örn: 5" min="1" max="31">
+    </div>
+    <div id="recMonthsRow">
+      <div class="field-label">Kaç Ay Sürecek? (0 = süresiz)</div>
+      <input class="field-input" type="number" id="recMonths" placeholder="0 = süresiz" min="0" value="0">
+    </div>
+    <button class="save-btn purple-btn" id="saveRecBtn" onclick="saveRec()">🔁 Sabit Gider Kaydet</button>
+  </div>
+</div>
+
+<!-- BUDGET MODAL -->
+<div class="overlay" id="budgetOverlay" onclick="handleOverlay(event,'budgetOverlay')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Aylık Bütçe</div>
+    <div class="field-label">Bütçe Limiti (₺)</div>
+    <input class="field-input amount-input" type="number" id="budgetField" placeholder="0">
+    <button class="save-btn" onclick="saveBudget()">Kaydet</button>
+  </div>
+</div>
+
+<!-- REC EDIT MODAL -->
+<div class="overlay" id="recEditOverlay" onclick="handleOverlay(event,'recEditOverlay')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Tutarı Güncelle</div>
+    <div class="field-label" id="recEditLabel">Yeni Tutar (₺)</div>
+    <input class="field-input amount-input" type="number" id="recEditAmount" placeholder="0,00" min="0" step="0.01">
+    <div class="hint-box">Bu değişiklik gelecek ay otomatik eklenecek işlemlere uygulanır.</div>
+    <button class="save-btn" onclick="saveRecEdit()">Güncelle</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
+  onSnapshot, setDoc, getDoc, writeBatch, getDocs, query, where
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCVAcH6Q2eMmszUVtBhyK0h1wsaNW0vD98",
+  authDomain: "butce-takip-ce080.firebaseapp.com",
+  projectId: "butce-takip-ce080",
+  storageBucket: "butce-takip-ce080.firebasestorage.app",
+  messagingSenderId: "128605859646",
+  appId: "1:128605859646:web:85b1ca2d6130943a6a466f"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+// ── CONSTANTS ──
+const BANKS = [
+  {id:'vakif',  name:'Vakıfbank', holder:'Kredi Kartı', icon:'🏦', color:'#1a73a7', bg:'#e8f4fb'},
+  {id:'enpara', name:'Enpara',    holder:'Cem',         icon:'💙', color:'#0066cc', bg:'#e6f0ff'},
+  {id:'isbank', name:'İşbankası', holder:'Kredi Kartı', icon:'🟦', color:'#003f87', bg:'#e6edf7'},
+  {id:'akbank', name:'Akbank',    holder:'Kredi Kartı', icon:'🔴', color:'#cc0000', bg:'#ffebeb'},
+  {id:'penpara',name:'Enpara',    holder:'Pelin',       icon:'💜', color:'#7c3aed', bg:'#f3eeff'},
+  {id:'other',  name:'Diğer',     holder:'Kredi Kartı', icon:'💳', color:'#6b7280', bg:'#f3f4f6'},
+];
+const CATS = {
+  expense:[
+    {id:'food',em:'🍔',label:'Yemek'},{id:'market',em:'🛒',label:'Market'},
+    {id:'transport',em:'🚌',label:'Ulaşım'},{id:'bills',em:'⚡',label:'Faturalar'},
+    {id:'health',em:'💊',label:'Sağlık'},{id:'clothing',em:'👗',label:'Giyim'},
+    {id:'entertainment',em:'🎮',label:'Eğlence'},{id:'edu',em:'📚',label:'Eğitim'},
+    {id:'cleaning',em:'🧹',label:'Temizlik'},{id:'other',em:'📦',label:'Diğer'},
+  ],
+  income:[
+    {id:'salary',em:'💼',label:'Maaş'},{id:'freelance',em:'💻',label:'Serbest'},
+    {id:'rent',em:'🏠',label:'Kira'},{id:'gift',em:'🎁',label:'Hediye'},
+    {id:'invest',em:'📈',label:'Yatırım'},{id:'other',em:'💰',label:'Diğer'},
+  ]
+};
+const FREQS = [
+  {id:'weekly',   label:'Her Hafta'},
+  {id:'weekday',  label:'Haftanın Günü'},
+  {id:'monthly',  label:'Her Ay'},
+  {id:'once',     label:'Tek Seferlik (ileriye)'},
+];
+const CAT_COLORS=['#1db863','#3b82f6','#f59e0b','#e8414a','#8b5cf6','#ec4899','#14b8a6','#f97316'];
+const DAY_NAMES=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
+
+// ── STATE ──
+let currentMonth = monthKey(new Date());
+let allTx=[], allCC=[], allLoans=[], allRec=[], budgetData={};
+let txType='expense', txCat=null, ccBank=null;
+let recType='expense', recCat=null, recFreq=null;
+let editingLoanId=null, editingRecId=null;
+
+function monthKey(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; }
+function fmt(n){ return '₺'+Math.abs(n).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function monthLabel(k){
+  const [y,m]=k.split('-');
+  return ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'][parseInt(m)-1]+' '+y;
+}
+function setSyncStatus(s,t){ const el=document.getElementById('syncBar'); el.className='sync-bar '+s; document.getElementById('syncText').textContent=t; }
+
+// ── RECURRING ENGINE ──
+// Returns dates in a given month (YYYY-MM) for a recurring rule
+function getRecDatesForMonth(rec, monthStr) {
+  const [y, m] = monthStr.split('-').map(Number);
+  const dates = [];
+
+  // Check month range
+  if (rec.startMonth && monthStr < rec.startMonth) return [];
+  if (rec.months > 0) {
+    const [sy, sm] = rec.startMonth.split('-').map(Number);
+    const diff = (y - sy) * 12 + (m - sm);
+    if (diff >= rec.months) return [];
+  }
+
+  if (rec.freq === 'monthly') {
+    const day = rec.monthDay || 1;
+    const daysInMonth = new Date(y, m, 0).getDate();
+    const d = Math.min(day, daysInMonth);
+    dates.push(`${monthStr}-${String(d).padStart(2,'0')}`);
+  } else if (rec.freq === 'weekday') {
+    // Every occurrence of a weekday in the month
+    const targetDay = parseInt(rec.weekday); // 0=Sun,1=Mon,...
+    const daysInMonth = new Date(y, m, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(y, m-1, d);
+      if (date.getDay() === targetDay) {
+        dates.push(`${monthStr}-${String(d).padStart(2,'0')}`);
+      }
+    }
+  } else if (rec.freq === 'weekly') {
+    // Every 7 days starting from startDate
+    if (!rec.startDate) return [];
+    const start = new Date(rec.startDate);
+    const firstOfMonth = new Date(y, m-1, 1);
+    const lastOfMonth = new Date(y, m, 0);
+    let cur = new Date(start);
+    // advance to first occurrence in or before month
+    while (cur < firstOfMonth) cur.setDate(cur.getDate() + 7);
+    while (cur <= lastOfMonth) {
+      const mk = monthKey(cur);
+      if (mk === monthStr) {
+        dates.push(`${mk}-${String(cur.getDate()).padStart(2,'0')}`);
+      }
+      cur.setDate(cur.getDate() + 7);
+    }
+  }
+  return dates;
+}
+
+// Generate virtual recurring transactions for a month
+function getRecTxForMonth(monthStr) {
+  const virtual = [];
+  allRec.forEach(rec => {
+    const dates = getRecDatesForMonth(rec, monthStr);
+    dates.forEach(date => {
+      virtual.push({
+        id: `rec_${rec.id}_${date}`,
+        type: rec.type,
+        amount: rec.amount,
+        desc: rec.desc,
+        catId: rec.catId,
+        date,
+        month: monthStr,
+        isAuto: true,
+        recId: rec.id
+      });
+    });
+  });
+  return virtual;
+}
+
+// Get loan transactions for month (fixed monthly payment)
+function getLoanTxForMonth(monthStr) {
+  const [y, m] = monthStr.split('-').map(Number);
+  const virtual = [];
+  allLoans.forEach(loan => {
+    if (loan.startMonth && monthStr < loan.startMonth) return;
+    const day = Math.min(loan.payDay || 1, new Date(y, m, 0).getDate());
+    virtual.push({
+      id: `loan_${loan.id}_${monthStr}`,
+      type: 'expense',
+      amount: loan.amount,
+      desc: `${loan.name} ${loan.installments ? '('+loan.installments+')' : ''}`,
+      catId: 'bills',
+      date: `${monthStr}-${String(day).padStart(2,'0')}`,
+      month: monthStr,
+      isAuto: true,
+      isLoan: true,
+      loanId: loan.id
+    });
+  });
+  return virtual;
+}
+
+// ── LISTENERS ──
+function startListeners() {
+  onSnapshot(collection(db,'transactions'), snap => {
+    allTx = snap.docs.map(d=>({id:d.id,...d.data()}));
+    render(); setSyncStatus('ok','Canlı senkronizasyon aktif');
+  }, ()=>setSyncStatus('err','Bağlantı hatası'));
+
+  onSnapshot(collection(db,'ccItems'), snap => {
+    allCC = snap.docs.map(d=>({id:d.id,...d.data()}));
+    render();
+  });
+
+  onSnapshot(collection(db,'loans'), snap => {
+    allLoans = snap.docs.map(d=>({id:d.id,...d.data()}));
+    render();
+  });
+
+  onSnapshot(collection(db,'recurring'), snap => {
+    allRec = snap.docs.map(d=>({id:d.id,...d.data()}));
+    render();
+  });
+
+  onSnapshot(doc(db,'settings','budget'), snap => {
+    budgetData = snap.exists() ? (snap.data()||{}) : {};
+    render();
+  });
+}
+
+// ── RENDER ──
+function render() {
+  document.getElementById('monthLabel').textContent = monthLabel(currentMonth);
+
+  const manualTx = allTx.filter(t=>t.month===currentMonth);
+  const autoTx   = getRecTxForMonth(currentMonth);
+  const loanTx   = getLoanTxForMonth(currentMonth);
+  const allMonthTx = [...manualTx, ...autoTx, ...loanTx];
+
+  const income  = allMonthTx.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense = allMonthTx.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+
+  const mCC = allCC.filter(c=>c.month===currentMonth);
+  const ccPaid   = mCC.filter(c=>c.paid).reduce((s,c)=>s+c.amount,0);
+  const ccUnpaid = mCC.filter(c=>!c.paid).reduce((s,c)=>s+c.amount,0);
+  const ccTotal  = mCC.reduce((s,c)=>s+c.amount,0);
+  const loanTotal = loanTx.reduce((s,t)=>s+t.amount,0);
+
+  const net = income - expense - ccPaid;
+
+  const balEl=document.getElementById('balanceAmt');
+  balEl.textContent=(net<0?'-':'')+fmt(net);
+  balEl.className='balance-amount'+(net<0?' negative':'');
+  document.getElementById('balanceSub').textContent=
+    allMonthTx.length===0&&mCC.length===0 ? 'Bu ay henüz işlem yok' :
+    net>=0 ? `${monthLabel(currentMonth)} · iyi gidiyor 👍` : 'Bütçeye dikkat ⚠️';
+
+  document.getElementById('totalIncome').textContent=fmt(income);
+  document.getElementById('totalExpense').textContent=fmt(expense);
+  document.getElementById('totalCC').textContent=fmt(ccTotal);
+  document.getElementById('totalLoan').textContent=fmt(loanTotal);
+
+  const warnEl=document.getElementById('ccWarning');
+  if(ccUnpaid>0){
+    warnEl.classList.remove('hidden');
+    document.getElementById('ccWarningText').textContent=`${mCC.filter(c=>!c.paid).length} ödenmemiş kart borcu: ${fmt(ccUnpaid)}`;
+  } else { warnEl.classList.add('hidden'); }
+
+  const budget=budgetData[currentMonth]||0;
+  const totalSpent=expense+ccPaid;
+  const pct=budget>0?Math.min(100,totalSpent/budget*100):0;
+  const bar=document.getElementById('budgetBar');
+  bar.style.width=pct+'%';
+  bar.className='bar-fill'+(pct>=100?' danger':pct>=75?' warn':'');
+  document.getElementById('budgetPct').textContent=budget>0?pct.toFixed(0)+'%':'—';
+  document.getElementById('budgetPct').style.color=pct>=100?'var(--red)':pct>=75?'var(--amber)':'var(--accent)';
+  document.getElementById('barSpent').textContent=`Harcanan: ${fmt(totalSpent)}`;
+  document.getElementById('barLimit').textContent=budget>0?`Limit: ${fmt(budget)}`:'Bütçe belirle →';
+
+  renderTxList(allMonthTx);
+  renderCCList(mCC);
+  renderLoanList();
+  renderRecList();
+  renderCatBreakdown(allMonthTx);
+}
+
+function renderTxList(allMonthTx) {
+  const el=document.getElementById('txList');
+  const sorted=[...allMonthTx].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(!sorted.length){
+    el.innerHTML=`<div class="empty"><div class="eicon">💸</div><p>İşlem yok. <b>+ Ekle</b> ile başlayın.</p></div>`;
+    return;
+  }
+  const allCats=[...CATS.expense,...CATS.income];
+  let lastDate='';
+  let html='';
+  sorted.forEach((t,i)=>{
+    const dateStr=t.date;
+    if(dateStr!==lastDate){
+      const d=new Date(dateStr+'T12:00:00');
+      const label=d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'});
+      html+=`<div class="divider-date">${label}</div>`;
+      lastDate=dateStr;
+    }
+    const cat=allCats.find(c=>c.id===t.catId)||{em:'📦',label:'Diğer'};
+    const bgc=t.type==='income'?'rgba(29,184,99,0.1)':'rgba(232,65,74,0.08)';
+    const autoClass=t.isAuto?' auto-item':'';
+    const delBtn=t.isAuto
+      ? `<div style="width:26px;flex-shrink:0"></div>`
+      : `<button class="tx-del" onclick="window.deleteTx('${t.id}')">×</button>`;
+    html+=`<div class="tx-item${autoClass}" style="animation-delay:${i*.03}s">
+      <div class="tx-emoji" style="background:${bgc}">${cat.em}</div>
+      <div class="tx-info">
+        <div class="tx-name">${t.desc||cat.label}${t.isAuto?' <span style="font-size:10px;color:var(--muted)">●otomatik</span>':''}</div>
+        <div class="tx-meta">${cat.label}</div>
+      </div>
+      <div class="tx-right"><div class="tx-amount ${t.type}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div></div>
+      ${delBtn}
+    </div>`;
+  });
+  el.innerHTML=html;
+}
+
+function renderCCList(mCC) {
+  const el=document.getElementById('ccList');
+  if(!mCC.length){
+    el.innerHTML=`<div class="empty"><div class="eicon">💳</div><p>Kredi kartı borcu eklenmedi.<br><b>+ Ekle</b> ile ekleyin.</p></div>`;
+    return;
+  }
+  el.innerHTML=mCC.map((c,i)=>{
+    const bank=BANKS.find(b=>b.id===c.bankId)||BANKS[5];
+    const dateStr=c.dueDate?new Date(c.dueDate+'T12:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'short'}):'';
+    return `<div class="cc-item ${c.paid?'paid':''}" style="animation-delay:${i*.06}s">
+      <div class="cc-top">
+        <div class="cc-icon" style="background:${bank.bg};color:${bank.color}">${bank.icon}</div>
+        <div class="cc-info">
+          <div class="cc-bank">${bank.name}</div>
+          <div class="cc-holder">${bank.holder}${c.note?' · '+c.note:''}</div>
+        </div>
+        <div class="cc-right">
+          <div class="cc-amount ${c.paid?'paid-amt':''}">${fmt(c.amount)}</div>
+          ${dateStr?`<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: ${dateStr}</div>`:''}
+        </div>
+        <button class="cc-del" onclick="window.deleteCC('${c.id}')">×</button>
+      </div>
+      <div class="cc-status-row">
+        <div class="status-badge ${c.paid?'paid':'unpaid'}">${c.paid?'✓ Ödendi':'⏳ Ödenmedi'}</div>
+        <button class="pay-btn ${c.paid?'undo':''}" onclick="window.toggleCCPay('${c.id}',${c.paid})">${c.paid?'↩ Geri Al':'✓ Ödendi Yap'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderLoanList() {
+  const el=document.getElementById('loanList');
+  if(!allLoans.length){
+    el.innerHTML=`<div class="empty"><div class="eicon">🏦</div><p>Kredi eklenmedi.<br><b>+ Ekle</b> ile ekleyin.</p></div>`;
+    return;
+  }
+  const loanTx=getLoanTxForMonth(currentMonth);
+  el.innerHTML=allLoans.map((loan,i)=>{
+    const thisTx=loanTx.find(t=>t.loanId===loan.id);
+    const isPaid=loan.paidMonths&&loan.paidMonths.includes(currentMonth);
+    return `<div class="loan-item" style="animation-delay:${i*.06}s">
+      <div class="loan-top">
+        <div class="loan-icon">🏦</div>
+        <div class="loan-info">
+          <div class="loan-name">${loan.name}</div>
+          <div class="loan-meta">Taksit: ${loan.installments||'—'} · Her ayın ${loan.payDay||'?'}. günü</div>
+        </div>
+        <div>
+          <div class="loan-amount">${fmt(loan.amount)}</div>
+          <div style="font-size:10px;color:var(--muted);text-align:right">/ay</div>
+        </div>
+      </div>
+      <div class="loan-status-row">
+        <div class="status-badge ${isPaid?'paid':'unpaid'}">${isPaid?'✓ Ödendi':'⏳ Ödenmedi'}</div>
+        <div style="display:flex;gap:8px">
+          <button class="pay-btn ${isPaid?'undo':''}" onclick="window.toggleLoanPay('${loan.id}','${currentMonth}',${!!isPaid})">${isPaid?'↩ Geri Al':'✓ Ödendi Yap'}</button>
+          <button style="background:var(--blue-soft);color:var(--blue);border:none;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:700;cursor:pointer" onclick="window.editLoan('${loan.id}')">✏️</button>
+          <button class="cc-del" onclick="window.deleteLoan('${loan.id}')">×</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRecList() {
+  const el=document.getElementById('recList');
+  if(!allRec.length){
+    el.innerHTML=`<div class="empty"><div class="eicon">🔁</div><p>Sabit gider eklenmedi.</p></div>`;
+    return;
+  }
+  const allCats=[...CATS.expense,...CATS.income];
+  el.innerHTML=allRec.map((r,i)=>{
+    const cat=allCats.find(c=>c.id===r.catId)||{em:'📦',label:'Diğer'};
+    const bgc=r.type==='income'?'rgba(29,184,99,0.1)':'rgba(232,65,74,0.08)';
+    let freqLabel='';
+    if(r.freq==='monthly') freqLabel=`Her ay, ${r.monthDay||'?'}. günü`;
+    else if(r.freq==='weekday') freqLabel=`Her ${DAY_NAMES[parseInt(r.weekday)]||'?'}`;
+    else if(r.freq==='weekly') freqLabel='Her hafta';
+    const monthsLeft=r.months>0?` · ${r.months} ay`:'· Süresiz';
+    return `<div class="rec-item" style="animation-delay:${i*.05}s">
+      <div class="rec-top">
+        <div class="rec-icon" style="background:${bgc}">${cat.em}</div>
+        <div class="rec-info">
+          <div class="rec-name">${r.desc}</div>
+          <div class="rec-meta">${freqLabel}${monthsLeft}</div>
+        </div>
+        <div class="rec-right">
+          <div class="rec-amount ${r.type}">${r.type==='income'?'+':'-'}${fmt(r.amount)}</div>
+        </div>
+      </div>
+      <div class="rec-actions">
+        <button class="rec-edit-btn" onclick="window.openRecEditModal('${r.id}','${r.desc}',${r.amount})">✏️ Tutarı Güncelle</button>
+        <button class="rec-del-btn" onclick="window.deleteRec('${r.id}')">×</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCatBreakdown(allMonthTx) {
+  const expenses=allMonthTx.filter(t=>t.type==='expense');
+  const total=expenses.reduce((s,t)=>s+t.amount,0);
+  if(!total){
+    document.getElementById('catBreakdown').innerHTML=`<div class="empty"><div class="eicon">📂</div><p>Gider eklediğinizde görünür.</p></div>`;
+    return;
+  }
+  const map={};
+  expenses.forEach(t=>{map[t.catId]=(map[t.catId]||0)+t.amount;});
+  const sorted=Object.entries(map).sort((a,b)=>b[1]-a[1]);
+  const allCats=[...CATS.expense,...CATS.income];
+  document.getElementById('catBreakdown').innerHTML=sorted.map(([cid,amt],i)=>{
+    const cat=allCats.find(c=>c.id===cid)||{em:'📦',label:'Diğer'};
+    const pct=(amt/total*100).toFixed(1);
+    return `<div class="cat-row" style="animation-delay:${i*.06}s">
+      <div class="cat-row-header">
+        <div class="cat-row-icon">${cat.em}</div>
+        <div class="cat-row-name">${cat.label}</div>
+        <div class="cat-row-amount">-${fmt(amt)}</div>
+      </div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${pct}%;background:${CAT_COLORS[i%CAT_COLORS.length]}"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Toplam giderin %${pct}'i</div>
+    </div>`;
+  }).join('');
+}
+
+// ── ACTIONS ──
+window.deleteTx = async id => {
+  if(!confirm('Silmek istiyor musunuz?')) return;
+  setSyncStatus('syncing','Siliniyor...');
+  await deleteDoc(doc(db,'transactions',id));
+};
+window.deleteCC = async id => {
+  if(!confirm('Silmek istiyor musunuz?')) return;
+  setSyncStatus('syncing','Siliniyor...');
+  await deleteDoc(doc(db,'ccItems',id));
+};
+window.toggleCCPay = async (id,paid) => {
+  setSyncStatus('syncing','Kaydediliyor...');
+  await updateDoc(doc(db,'ccItems',id),{paid:!paid});
+};
+window.deleteLoan = async id => {
+  if(!confirm('Krediyi silmek istiyor musunuz?')) return;
+  setSyncStatus('syncing','Siliniyor...');
+  await deleteDoc(doc(db,'loans',id));
+};
+window.toggleLoanPay = async (id, month, isPaid) => {
+  setSyncStatus('syncing','Kaydediliyor...');
+  const loan=allLoans.find(l=>l.id===id);
+  if(!loan) return;
+  let paidMonths=loan.paidMonths||[];
+  if(isPaid) paidMonths=paidMonths.filter(m=>m!==month);
+  else paidMonths=[...paidMonths,month];
+  await updateDoc(doc(db,'loans',id),{paidMonths});
+};
+window.editLoan = id => {
+  const loan=allLoans.find(l=>l.id===id);
+  if(!loan) return;
+  editingLoanId=id;
+  document.getElementById('loanModalTitle').textContent='Krediyi Düzenle';
+  document.getElementById('loanName').value=loan.name||'';
+  document.getElementById('loanAmount').value=loan.amount||'';
+  document.getElementById('loanInstallments').value=loan.installments||'';
+  document.getElementById('loanDay').value=loan.payDay||'';
+  document.getElementById('loanOverlay').classList.add('open');
+};
+window.deleteRec = async id => {
+  if(!confirm('Sabit gideri silmek istiyor musunuz?')) return;
+  setSyncStatus('syncing','Siliniyor...');
+  await deleteDoc(doc(db,'recurring',id));
+};
+window.openRecEditModal = (id, desc, amount) => {
+  editingRecId=id;
+  document.getElementById('recEditLabel').textContent=`"${desc}" için yeni tutar (₺)`;
+  document.getElementById('recEditAmount').value=amount;
+  document.getElementById('recEditOverlay').classList.add('open');
+};
+
+// ── MONTH NAV ──
+window.changeMonth = dir => {
+  const [y,m]=currentMonth.split('-').map(Number);
+  const d=new Date(y,m-1+dir,1);
+  currentMonth=monthKey(d); render();
+};
+
+// ── TX MODAL ──
+window.openTxModal = () => {
+  txCat=null;
+  document.getElementById('txAmount').value='';
+  document.getElementById('txDesc').value='';
+  document.getElementById('txDate').value=new Date().toISOString().split('T')[0];
+  setTxType('expense');
+  document.getElementById('txOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('txAmount').focus(),400);
+};
+window.setTxType = type => {
+  txType=type; txCat=null;
+  document.getElementById('btnExpense').className='type-btn'+(type==='expense'?' active-expense':'');
+  document.getElementById('btnIncome').className='type-btn'+(type==='income'?' active-income':'');
+  document.getElementById('saveTxBtn').className='save-btn'+(type==='expense'?' expense':'');
+  document.getElementById('saveTxBtn').textContent=type==='expense'?'💸 Gider Ekle':'💰 Gelir Ekle';
+  document.getElementById('catGrid').innerHTML=CATS[type].map(c=>
+    `<div class="cat-btn" id="txcat-${c.id}" onclick="window.selectTxCat('${c.id}')"><div class="cat-em">${c.em}</div><div class="cat-lbl">${c.label}</div></div>`
+  ).join('');
+};
+window.selectTxCat = id => {
+  txCat=id;
+  document.querySelectorAll('#catGrid .cat-btn').forEach(el=>el.classList.remove('selected'));
+  document.getElementById(`txcat-${id}`)?.classList.add('selected');
+};
+window.saveTx = async () => {
+  const amount=parseFloat(document.getElementById('txAmount').value);
+  const desc=document.getElementById('txDesc').value.trim();
+  const date=document.getElementById('txDate').value;
+  if(!amount||amount<=0){alert('Geçerli tutar girin');return;}
+  if(!txCat){alert('Kategori seçin');return;}
+  if(!date){alert('Tarih seçin');return;}
+  setSyncStatus('syncing','Kaydediliyor...');
+  await addDoc(collection(db,'transactions'),{type:txType,amount,desc,catId:txCat,date,month:date.substring(0,7),createdAt:Date.now()});
+  currentMonth=date.substring(0,7);
+  document.getElementById('txOverlay').classList.remove('open');
+};
+
+// ── CC MODAL ──
+window.openCCModal = () => {
+  ccBank=null;
+  document.getElementById('ccAmount').value='';
+  document.getElementById('ccDueDate').value='';
+  document.getElementById('ccNote').value='';
+  document.getElementById('bankGrid').innerHTML=BANKS.map(b=>
+    `<div class="bank-btn" id="bank-${b.id}" onclick="window.selectBank('${b.id}')">
+      <div class="b-icon">${b.icon}</div>
+      <div><div class="b-name">${b.name}</div><div class="b-holder">${b.holder}</div></div>
+    </div>`
+  ).join('');
+  document.getElementById('ccOverlay').classList.add('open');
+};
+window.selectBank = id => {
+  ccBank=id;
+  document.querySelectorAll('.bank-btn').forEach(el=>el.classList.remove('selected'));
+  document.getElementById(`bank-${id}`)?.classList.add('selected');
+};
+window.saveCC = async () => {
+  const amount=parseFloat(document.getElementById('ccAmount').value);
+  const dueDate=document.getElementById('ccDueDate').value;
+  const note=document.getElementById('ccNote').value.trim();
+  if(!amount||amount<=0){alert('Geçerli tutar girin');return;}
+  if(!ccBank){alert('Kart seçin');return;}
+  setSyncStatus('syncing','Kaydediliyor...');
+  await addDoc(collection(db,'ccItems'),{bankId:ccBank,amount,dueDate,note,paid:false,month:currentMonth,createdAt:Date.now()});
+  document.getElementById('ccOverlay').classList.remove('open');
+  window.switchTab('cc');
+};
+
+// ── LOAN MODAL ──
+window.openLoanModal = () => {
+  editingLoanId=null;
+  document.getElementById('loanModalTitle').textContent='Kredi Ekle';
+  document.getElementById('loanName').value='';
+  document.getElementById('loanAmount').value='';
+  document.getElementById('loanInstallments').value='';
+  document.getElementById('loanDay').value='';
+  document.getElementById('loanOverlay').classList.add('open');
+};
+window.saveLoan = async () => {
+  const name=document.getElementById('loanName').value.trim();
+  const amount=parseFloat(document.getElementById('loanAmount').value);
+  const installments=document.getElementById('loanInstallments').value.trim();
+  const payDay=parseInt(document.getElementById('loanDay').value)||1;
+  if(!name){alert('Kredi adı girin');return;}
+  if(!amount||amount<=0){alert('Geçerli taksit tutarı girin');return;}
+  setSyncStatus('syncing','Kaydediliyor...');
+  if(editingLoanId){
+    await updateDoc(doc(db,'loans',editingLoanId),{name,amount,installments,payDay});
+  } else {
+    await addDoc(collection(db,'loans'),{name,amount,installments,payDay,startMonth:currentMonth,paidMonths:[],createdAt:Date.now()});
+  }
+  document.getElementById('loanOverlay').classList.remove('open');
+  window.switchTab('loan');
+};
+
+// ── RECURRING MODAL ──
+window.openRecModal = () => {
+  recCat=null; recFreq=null;
+  document.getElementById('recDesc').value='';
+  document.getElementById('recAmount').value='';
+  document.getElementById('recMonths').value='0';
+  setRecType('expense');
+  renderFreqGrid();
+  document.getElementById('weekdayRow').style.display='none';
+  document.getElementById('monthdayRow').style.display='none';
+  document.getElementById('recOverlay').classList.add('open');
+};
+function renderFreqGrid(){
+  document.getElementById('freqGrid').innerHTML=FREQS.map(f=>
+    `<div class="freq-btn" id="freq-${f.id}" onclick="window.selectFreq('${f.id}')">${f.label}</div>`
+  ).join('');
+}
+window.selectFreq = id => {
+  recFreq=id;
+  document.querySelectorAll('.freq-btn').forEach(el=>el.classList.remove('selected'));
+  document.getElementById(`freq-${id}`)?.classList.add('selected');
+  document.getElementById('weekdayRow').style.display=id==='weekday'?'':'none';
+  document.getElementById('monthdayRow').style.display=id==='monthly'?'':'none';
+};
+window.setRecType = type => {
+  recType=type; recCat=null;
+  document.getElementById('recBtnExpense').className='type-btn'+(type==='expense'?' active-expense':'');
+  document.getElementById('recBtnIncome').className='type-btn'+(type==='income'?' active-income':'');
+  document.getElementById('saveRecBtn').className='save-btn purple-btn';
+  document.getElementById('recCatGrid').innerHTML=CATS[type].map(c=>
+    `<div class="cat-btn" id="reccat-${c.id}" onclick="window.selectRecCat('${c.id}')"><div class="cat-em">${c.em}</div><div class="cat-lbl">${c.label}</div></div>`
+  ).join('');
+};
+window.selectRecCat = id => {
+  recCat=id;
+  document.querySelectorAll('#recCatGrid .cat-btn').forEach(el=>el.classList.remove('selected'));
+  document.getElementById(`reccat-${id}`)?.classList.add('selected');
+};
+window.saveRec = async () => {
+  const desc=document.getElementById('recDesc').value.trim();
+  const amount=parseFloat(document.getElementById('recAmount').value);
+  const months=parseInt(document.getElementById('recMonths').value)||0;
+  if(!desc){alert('Açıklama girin');return;}
+  if(!amount||amount<=0){alert('Geçerli tutar girin');return;}
+  if(!recCat){alert('Kategori seçin');return;}
+  if(!recFreq){alert('Tekrar sıklığı seçin');return;}
+
+  const data={type:recType,desc,amount,catId:recCat,freq:recFreq,months,startMonth:currentMonth,createdAt:Date.now()};
+  if(recFreq==='weekday') data.weekday=document.getElementById('recWeekday').value;
+  if(recFreq==='monthly') data.monthDay=parseInt(document.getElementById('recMonthDay').value)||1;
+  if(recFreq==='weekly') data.startDate=new Date().toISOString().split('T')[0];
+
+  setSyncStatus('syncing','Kaydediliyor...');
+  await addDoc(collection(db,'recurring'),data);
+  document.getElementById('recOverlay').classList.remove('open');
+  window.switchTab('rec');
+};
+
+window.saveRecEdit = async () => {
+  if(!editingRecId) return;
+  const amount=parseFloat(document.getElementById('recEditAmount').value);
+  if(!amount||amount<=0){alert('Geçerli tutar girin');return;}
+  setSyncStatus('syncing','Kaydediliyor...');
+  await updateDoc(doc(db,'recurring',editingRecId),{amount});
+  document.getElementById('recEditOverlay').classList.remove('open');
+};
+
+// ── BUDGET ──
+window.openBudgetModal = () => {
+  document.getElementById('budgetField').value=budgetData[currentMonth]||'';
+  document.getElementById('budgetOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('budgetField').focus(),400);
+};
+window.saveBudget = async () => {
+  const val=parseFloat(document.getElementById('budgetField').value);
+  if(!val||val<=0){alert('Geçerli bütçe girin');return;}
+  setSyncStatus('syncing','Kaydediliyor...');
+  await setDoc(doc(db,'settings','budget'),{...budgetData,[currentMonth]:val});
+  document.getElementById('budgetOverlay').classList.remove('open');
+};
+
+// ── OVERLAY & TABS ──
+window.handleOverlay = (e,id) => {
+  if(e.target===document.getElementById(id)) document.getElementById(id).classList.remove('open');
+};
+window.TAB_MAP = {tx:'Tx', cc:'CC', loan:'Loan', rec:'Rec', cat:'Cat'};
+window.switchTab = tab => {
+  Object.keys(window.TAB_MAP).forEach(t=>{
+    const s=window.TAB_MAP[t]; const te=document.getElementById('tab'+s); const pe=document.getElementById('panel'+s); if(te) te.className='tab'+(tab===t?' active':''); if(pe) pe.style.display=tab===t?'':'none';
+
+  });
+};
+
+// ── INIT ──
+// Seed default recurring items if empty
+async function seedDefaultRec() {
+  const snap = await getDocs(collection(db,'recurring'));
+  if(!snap.empty) return;
+  const defaults=[
+    {type:'expense',desc:'Temizlik Gideri',   amount:3500,  catId:'cleaning', freq:'weekday',weekday:'1',months:0},
+    {type:'expense',desc:'Pelin - Piyano Dersi',amount:1600,catId:'edu',      freq:'weekday',weekday:'6',months:0},
+    {type:'expense',desc:'Pelin BES',          amount:3000,  catId:'other',    freq:'monthly', monthDay:1, months:0},
+    {type:'expense',desc:'Apartman Aidatı',    amount:2750,  catId:'bills',    freq:'monthly', monthDay:1, months:0},
+    {type:'expense',desc:'Nakit Harcama',      amount:2000,  catId:'other',    freq:'monthly', monthDay:1, months:0},
+  ];
+  const batch=writeBatch(db);
+  defaults.forEach(d=>{
+    const ref=doc(collection(db,'recurring'));
+    batch.set(ref,{...d,startMonth:monthKey(new Date()),createdAt:Date.now()});
+  });
+  await batch.commit();
+}
+
+async function seedDefaultLoans() {
+  const snap = await getDocs(collection(db,'loans'));
+  if(!snap.empty) return;
+  await addDoc(collection(db,'loans'),{
+    name:'Halkbank',amount:4928.61,installments:'39/120',
+    payDay:15,startMonth:monthKey(new Date()),paidMonths:[],createdAt:Date.now()
+  });
+}
+
+startListeners();
+
+// ── ALARM SYSTEM ──
+let alarmAudio = null;
+let alarmSnoozeTimeout = null;
+let currentAlarms = [];
+let alarmIndex = 0;
+let notifPermission = false;
+
+function buildAlarmSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function beep(freq, start, dur) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0, ctx.currentTime + start);
+      gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + start + 0.05);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur - 0.05);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + start + dur);
+    }
+    for(let i=0;i<3;i++){beep(880,i*.4,.3);beep(1100,i*.4+.15,.15);}
+  } catch(e){}
+}
+
+async function requestNotifPermission() {
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='granted'){notifPermission=true;return;}
+  if(Notification.permission!=='denied'){
+    const p=await Notification.requestPermission();
+    notifPermission=p==='granted';
+  }
+}
+
+function sendBrowserNotif(title, body) {
+  if(!notifPermission) return;
+  try { new Notification(title,{body,icon:'🔔',tag:'butce-alarm',requireInteraction:true}); } catch(e){}
+}
+
+function getTodayStr() {
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function checkAlarms() {
+  const today=getTodayStr();
+  const todayDay=new Date().getDate();
+  const todayMonth=monthKey(new Date());
+  const alarms=[];
+  allCC.forEach(cc=>{
+    if(cc.paid||!cc.dueDate||cc.dueDate!==today) return;
+    const bank=BANKS.find(b=>b.id===cc.bankId)||{name:'Kredi Kartı',icon:'💳',holder:''};
+    alarms.push({emoji:bank.icon,title:`${bank.name} - ${bank.holder}${cc.note?' ('+cc.note+')':''}`,amount:cc.amount,sub:'Kredi kartı son ödeme günü!',id:cc.id});
+  });
+  allLoans.forEach(loan=>{
+    if(loan.paidMonths&&loan.paidMonths.includes(todayMonth)) return;
+    if(loan.payDay===todayDay) alarms.push({emoji:'🏦',title:`${loan.name} ${loan.installments?'('+loan.installments+')':''}`,amount:loan.amount,sub:'Kredi taksit ödeme günü!',id:'loan_'+loan.id});
+  });
+  if(!alarms.length) return;
+  const shownKey='alarm_shown_'+today;
+  const shown=JSON.parse(sessionStorage.getItem(shownKey)||'[]');
+  const newAlarms=alarms.filter(a=>!shown.includes(a.id));
+  if(!newAlarms.length) return;
+  currentAlarms=newAlarms; alarmIndex=0;
+  showAlarmModal(newAlarms[0]);
+  sessionStorage.setItem(shownKey,JSON.stringify([...shown,...newAlarms.map(a=>a.id)]));
+}
+
+function showAlarmModal(alarm) {
+  document.getElementById('alarmEmoji').textContent=alarm.emoji;
+  document.getElementById('alarmTitle').textContent=alarm.title;
+  document.getElementById('alarmAmount').textContent='₺'+alarm.amount.toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('alarmSub').textContent=alarm.sub;
+  document.getElementById('alarmModal').style.display='flex';
+  buildAlarmSound();
+  sendBrowserNotif('💳 '+alarm.title, alarm.sub+' · ₺'+alarm.amount.toLocaleString('tr-TR'));
+  if(navigator.vibrate) navigator.vibrate([400,200,400,200,400]);
+  clearInterval(alarmAudio);
+  alarmAudio=setInterval(()=>{buildAlarmSound();if(navigator.vibrate)navigator.vibrate([300,150,300]);},8000);
+}
+
+window.dismissAlarm=()=>{
+  clearInterval(alarmAudio); clearTimeout(alarmSnoozeTimeout);
+  alarmIndex++;
+  if(alarmIndex<currentAlarms.length) setTimeout(()=>showAlarmModal(currentAlarms[alarmIndex]),400);
+  else document.getElementById('alarmModal').style.display='none';
+};
+
+window.snoozeAlarm=()=>{
+  clearInterval(alarmAudio);
+  document.getElementById('alarmModal').style.display='none';
+  alarmSnoozeTimeout=setTimeout(()=>showAlarmModal(currentAlarms[alarmIndex]),600000);
+  showToast('⏰ 10 dakika sonra tekrar hatırlatılacak');
+};
+
+function showToast(msg){
+  const t=document.createElement('div');
+  t.textContent=msg;
+  t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a2e23;color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;font-family:DM Sans,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,0.2)';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+function startAlarmChecker(){
+  requestNotifPermission();
+  checkAlarms();
+  setInterval(checkAlarms,60000);
+}
+
+setTimeout(async ()=>{
+  await Promise.all([seedDefaultRec(), seedDefaultLoans()]);
+  document.getElementById('loadingScreen').classList.add('hidden');
+  document.getElementById('app').style.display='';
+  window.switchTab('tx');
+  startAlarmChecker();
+},1800);
+
+</script>
+</body>
+</html>
