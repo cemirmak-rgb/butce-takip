@@ -353,21 +353,21 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,setDoc,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
- 
+
 const FC={apiKey:"AIzaSyCVy4e-wZyFaC4tVtO0Lh9NTiBClM3_clw",authDomain:"butce-takip-ce080.firebaseapp.com",projectId:"butce-takip-ce080",storageBucket:"butce-takip-ce080.firebasestorage.app",messagingSenderId:"128605859646",appId:"1:128605859646:web:5a09cba3f481c2606a466f"};
 const fa=initializeApp(FC),au=getAuth(fa),db=getFirestore(fa),gp=new GoogleAuthProvider();
- 
+
 const BK=[{id:'vakif',n:'Vakıfbank',h:'Kredi Kartı',ic:'🏦',co:'#1a73a7',bg:'#e8f4fb'},{id:'enpara',n:'Enpara',h:'Cem',ic:'💙',co:'#0066cc',bg:'#e6f0ff'},{id:'isbank',n:'İşbankası',h:'Kredi Kartı',ic:'🟦',co:'#003f87',bg:'#e6edf7'},{id:'akbank',n:'Akbank',h:'Kredi Kartı',ic:'🔴',co:'#cc0000',bg:'#ffebeb'},{id:'penpara',n:'Enpara',h:'Pelin',ic:'💜',co:'#7c3aed',bg:'#f3eeff'},{id:'other',n:'Diğer',h:'Kredi Kartı',ic:'💳',co:'#6b7280',bg:'#f3f4f6'}];
 const CE={expense:[{id:'food',e:'🍔',l:'Yemek'},{id:'market',e:'🛒',l:'Market'},{id:'transport',e:'🚌',l:'Ulaşım'},{id:'bills',e:'⚡',l:'Faturalar'},{id:'health',e:'💊',l:'Sağlık'},{id:'clothing',e:'👗',l:'Giyim'},{id:'entertainment',e:'🎮',l:'Eğlence'},{id:'edu',e:'📚',l:'Eğitim'},{id:'cleaning',e:'🧹',l:'Temizlik'},{id:'fuel',e:'⛽',l:'Akaryakıt'},{id:'other',e:'📦',l:'Diğer'}],income:[{id:'salary',e:'💼',l:'Maaş'},{id:'freelance',e:'💻',l:'Serbest'},{id:'rent',e:'🏠',l:'Kira'},{id:'gift',e:'🎁',l:'Hediye'},{id:'invest',e:'📈',l:'Yatırım'},{id:'other',e:'💰',l:'Diğer'}]};
 const FR=[{id:'weekday',l:'Haftanın Günü'},{id:'monthly',l:'Her Ay'},{id:'weekly',l:'Her Hafta'}];
 const CC=['#1db863','#3b82f6','#f59e0b','#e8414a','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16'];
 const DN=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
- 
+
 let CU=null,UP='',CM_=mk(new Date()),RM=mk(new Date());
 let TX=[],CC2=[],LN=[],RC=[],RP2=[],QT=[],BD={};
 let TT='expense',TC=null,CB=null,RT='expense',RTC=null,RF=null,QC=null;
 let ELI=null,ERI=null,AQ=[],AI=0,ATI=null,SNT=null,NP=false,UN2=[];
- 
+
 function mk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function fmt(n){return '₺'+Math.abs(n).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function ml(k){const[y,m]=k.split('-');return['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'][parseInt(m)-1]+' '+y;}
@@ -377,7 +377,7 @@ function ud(...p){return doc(db,'users',UP,...p);}
 function prevMk(ms){const[y,m]=ms.split('-').map(Number);const d=new Date(y,m-2,1);return mk(d);}
 function toast(msg){const t=document.createElement('div');t.textContent=msg;t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a2e23;color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;font-family:DM Sans,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.2)';document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
 window.HO=(e,id)=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('op');};
- 
+
 function rdates(r,ms){
   const[y,m]=ms.split('-').map(Number),dim=new Date(y,m,0).getDate(),dates=[];
   if(r.startMonth&&ms<r.startMonth)return[];
@@ -391,7 +391,7 @@ function rdates(r,ms){
   }
   return dates;
 }
- 
+
 function rtx(ms){
   const v=[];
   RC.forEach(r=>rdates(r,ms).forEach(date=>{
@@ -400,7 +400,7 @@ function rtx(ms){
   }));
   return v;
 }
- 
+
 function ltx(ms){
   const[y,m]=ms.split('-').map(Number),v=[];
   LN.forEach(l=>{
@@ -410,9 +410,9 @@ function ltx(ms){
   });
   return v;
 }
- 
+
 function amt(ms){return[...TX.filter(t=>t.month===ms),...rtx(ms),...ltx(ms)];}
- 
+
 function startL(){
   UN2.forEach(u=>u());UN2=[];
   UN2.push(onSnapshot(uc('transactions'),s=>{TX=s.docs.map(d=>({id:d.id,...d.data()}));render();ss('ok','Canlı senkronizasyon');},()=>ss('er','Bağlantı hatası')));
@@ -423,7 +423,7 @@ function startL(){
   UN2.push(onSnapshot(uc('quickTemplates'),s=>{QT=s.docs.map(d=>({id:d.id,...d.data()}));renderQ();}));
   UN2.push(onSnapshot(ud('settings','budget'),s=>{BD=s.exists()?(s.data()||{}):{};render();}));
 }
- 
+
 async function seedRC(){
   const s=await getDocs(uc('recurring'));if(!s.empty)return;
   const b=writeBatch(db);
@@ -431,7 +431,7 @@ async function seedRC(){
   .forEach(d=>b.set(doc(uc('recurring')),{...d,startMonth:mk(new Date()),createdAt:Date.now()}));
   await b.commit();
 }
- 
+
 async function seedLN(){
   const s=await getDocs(uc('loans'));if(!s.empty)return;
   await addDoc(uc('loans'),{name:'Halkbank',amount:4928.61,installments:'39/120',payDay:15,startMonth:mk(new Date()),paidMonths:[],createdAt:Date.now()});
@@ -452,7 +452,7 @@ function render(){
   document.getElementById('BCC').textContent=fmt(cct);document.getElementById('BL').textContent=fmt(lt);
   renderOB(mTx,mCC);renderHS(inc,exp,ccp,sav);renderBG(exp,ccp);renderTX(mTx);renderCC(mCC);renderLN();renderRC();renderCT(mTx);
 }
- 
+
 function renderOB(mTx,mCC){
   const ob=document.getElementById('OB');
   const uCC=mCC.filter(c=>!c.paid),uLN=ltx(CM_).filter(t=>!t.isPaid),uRC=rtx(CM_).filter(t=>t.type==='expense'&&!t.isPaid);
@@ -470,7 +470,7 @@ function renderOB(mTx,mCC){
     uLN.map(t=>'<div class="oc" style="color:var(--blue)">🏦 '+t.desc+': '+fmt(t.amount)+'</div>').join('')+
     uRC.slice(0,3).map(t=>'<div class="oc" style="color:var(--amber)">⚙️ '+t.desc+': '+fmt(t.amount)+'</div>').join('');
 }
- 
+
 function renderHS(inc,exp,ccp,sav){
   const tot=exp+ccp,sc=inc>0?Math.max(0,Math.min(100,Math.round((1-tot/inc)*100))):0;
   const col=sc>=30?'var(--accent)':sc>=15?'var(--amber)':'var(--red)';
@@ -490,21 +490,21 @@ function renderHS(inc,exp,ccp,sav){
   if(pe>0){const d=((tot-pe)/pe*100).toFixed(0);hp.textContent=(d>0?'▲':'▼')+'%'+Math.abs(d)+' geçen aya';hp.className='hmv '+(d>0?'pru':'prd');}
   else{hp.textContent='—';hp.style.color='var(--muted)';}
 }
- 
+
 function renderBG(exp,ccp){
   const bg=BD[CM_]||0,sp=exp+ccp,pct=bg>0?Math.min(100,sp/bg*100):0;
   const bf=document.getElementById('BF');bf.style.width=pct+'%';bf.className='bf'+(pct>=100?' d':pct>=75?' w':'');
   document.getElementById('BGP').textContent=bg>0?pct.toFixed(0)+'%':'—';document.getElementById('BGP').style.color=pct>=100?'var(--red)':pct>=75?'var(--amber)':'var(--accent)';
   document.getElementById('BMS').textContent='Harcanan: '+fmt(sp);document.getElementById('BML').textContent=bg>0?'Limit: '+fmt(bg):'Bütçe belirle →';
 }
- 
+
 function renderQ(){
   const el=document.getElementById('QG');
   if(!QT.length){el.innerHTML='<div class="qadd" onclick="window.OQM()">+ Şablon Ekle</div><div class="qadd" onclick="window.OQM()">+ Şablon Ekle</div>';return;}
   const aC=[...CE.expense,...CE.income];
   el.innerHTML=QT.slice(0,6).map(q=>{const c=aC.find(x=>x.id===q.catId)||{e:'📦'};return'<div class="qb" onclick="window.FQT(\''+q.id+'\')"><div class="qe">'+(q.icon||c.e)+'</div><div><div class="qn">'+q.name+'</div><div class="qa">'+fmt(q.amount)+'</div></div></div>';}).join('')+'<div class="qadd" onclick="window.OQM()">+ Ekle</div>';
 }
- 
+
 function renderTX(mTx){
   const el=document.getElementById('TXL');
   const sorted=[...mTx].sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -524,7 +524,7 @@ function renderTX(mTx){
   });
   el.innerHTML=h;
 }
- 
+
 function renderCC(mCC){
   const el=document.getElementById('CCL');
   if(!mCC.length){el.innerHTML='<div class="em"><div class="ei">💳</div><p>Kart borcu eklenmedi.</p></div>';return;}
@@ -534,7 +534,7 @@ function renderCC(mCC){
     return '<div class="cci'+(c.paid?' pd':'')+'" style="animation-delay:'+i*.06+'s"><div class="cct"><div class="ccic" style="background:'+bk.bg+';color:'+bk.co+'">'+bk.ic+'</div><div class="ccin"><div class="ccb">'+bk.n+'</div><div class="cch">'+bk.h+(c.note?' · '+c.note:'')+'</div></div><div class="ccr"><div class="cca'+(c.paid?' p':'')+'">'+fmt(c.amount)+'</div>'+(ds?'<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: '+ds+'</div>':'')+'</div><button class="ccd" onclick="window.DCC(\''+c.id+'\')">×</button></div><div class="ccs"><div class="sb '+(c.paid?'p':'u')+'">'+(c.paid?'✓ Ödendi':'⏳ Ödenmedi')+'</div><button class="pb'+(c.paid?' un':'')+'" onclick="window.TCP(\''+c.id+'\','+c.paid+')">'+(c.paid?'↩ Geri Al':'✓ Ödendi Yap')+'</button></div></div>';
   }).join('');
 }
- 
+
 function renderLN(){
   const el=document.getElementById('LNL');
   if(!LN.length){el.innerHTML='<div class="em"><div class="ei">🏦</div><p>Kredi eklenmedi.</p></div>';return;}
@@ -544,7 +544,7 @@ function renderLN(){
     return '<div class="lni" style="animation-delay:'+i*.06+'s"><div style="display:flex;align-items:center;gap:10px"><div style="width:42px;height:42px;border-radius:12px;background:var(--bsoft);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏦</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+l.name+'</div><div style="font-size:11px;color:var(--muted)">Her ayın '+( l.payDay||'?')+'. günü</div></div><div style="text-align:right"><div style="font-size:17px;font-weight:700;color:var(--blue)">'+fmt(l.amount)+'</div><div style="font-size:10px;color:var(--muted)">/ay</div></div><button style="background:var(--bsoft);color:var(--blue);border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;margin-left:8px" onclick="window.ELN(\''+l.id+'\')">✏️</button><button class="ccd" onclick="window.DLN(\''+l.id+'\')">×</button></div><div style="display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div style="flex:1"><div class="lnc">'+pts[0]+'<span style="font-size:14px;color:var(--muted);font-weight:400">/'+pts[1]+'</span></div><div style="font-size:10px;color:var(--muted)">Kalan / Toplam Taksit</div></div><div class="sb '+(ip?'p':'u')+'">'+(ip?'✓ Ödendi':'⏳ Ödenmedi')+'</div><button class="pb'+(ip?' un':'')+'" onclick="window.TLP(\''+l.id+'\',\''+CM_+'\','+!!ip+')">'+(ip?'↩ Geri Al':'✓ Ödendi Yap')+'</button></div></div>';
   }).join('');
 }
- 
+
 function renderRC(){
   const el=document.getElementById('RCL');
   if(!RC.length){el.innerHTML='<div class="em"><div class="ei">🔁</div><p>Sabit gider eklenmedi.</p></div>';return;}
@@ -556,7 +556,7 @@ function renderRC(){
     return '<div class="ri" style="animation-delay:'+i*.05+'s"><div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;border-radius:11px;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+c.e+'</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+r.desc+'</div><div style="font-size:11px;color:var(--muted)">'+fl+' · '+(r.months>0?r.months+' ay':'Süresiz')+'</div></div><div style="font-size:16px;font-weight:700;color:'+(r.type==='income'?'var(--accent)':'var(--red)')+'">'+( r.type==='income'?'+':'-')+fmt(r.amount)+'</div></div><div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><button style="flex:1;background:var(--asoft);color:var(--accent);border:none;border-radius:9px;padding:8px;font-size:12px;font-weight:700;font-family:DM Sans,sans-serif;cursor:pointer" onclick="window.ORCE(\''+r.id+'\',\''+r.desc+'\','+r.amount+')">✏️ Tutarı Güncelle</button><button style="background:var(--rsoft);color:var(--red);border:none;border-radius:9px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="window.DRC(\''+r.id+'\')">×</button></div></div>';
   }).join('');
 }
- 
+
 function renderCT(mTx){
   const el=document.getElementById('CTL');
   const exp=mTx.filter(t=>t.type==='expense');
@@ -651,7 +651,7 @@ window.SRT=t=>{
     return '<div class="cb" id="rc-'+c.id+'" onclick="window.SRCT(''+c.id+'')"><div class="ce">'+c.e+'</div><div class="cl">'+c.l+'</div></div>';
   }).join('');
 };
- 
+
 let aQ=[],aI=0,aT2=null,sT2=null;
 function beep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();function b(f,s,d){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(0,ctx.currentTime+s);g.gain.linearRampToValueAtTime(.4,ctx.currentTime+s+.05);g.gain.linearRampToValueAtTime(0,ctx.currentTime+s+d-.05);o.start(ctx.currentTime+s);o.stop(ctx.currentTime+s+d);}for(let i=0;i<3;i++){b(880,i*.4,.3);b(1100,i*.4+.15,.15);}}catch(e){}}
 window.RNP=async()=>{if(!('Notification'in window))return;if(Notification.permission==='granted'){NP=true;toast('✅ Bildirimler zaten aktif!');return;}if(Notification.permission!=='denied'){const p=await Notification.requestPermission();NP=p==='granted';if(NP)toast('✅ Bildirimler aktif edildi!');}};
@@ -668,7 +668,7 @@ function chkAlarm(){
 function showAl(a){document.getElementById('AE').textContent=a.e;document.getElementById('AT').textContent=a.t;document.getElementById('AA').textContent=fmt(a.a);document.getElementById('AS').textContent=a.s;document.getElementById('AO').style.display='flex';beep();if(NP)try{new Notification('💳 '+a.t,{body:a.s+' · '+fmt(a.a),tag:'bt-alarm',requireInteraction:true});}catch(e){}if(navigator.vibrate)navigator.vibrate([400,200,400,200,400]);clearInterval(aT2);aT2=setInterval(()=>{beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},8000);}
 window.DA=()=>{clearInterval(aT2);clearTimeout(sT2);aI++;if(aI<aQ.length)setTimeout(()=>showAl(aQ[aI]),400);else document.getElementById('AO').style.display='none';};
 window.SNA=()=>{clearInterval(aT2);document.getElementById('AO').style.display='none';sT2=setTimeout(()=>showAl(aQ[aI]),600000);toast('⏰ 10 dakika sonra tekrar hatırlatılacak');};
- 
+
 window.doLogin=async()=>{
   try{
     document.getElementById('LG').classList.add('hd');
@@ -684,7 +684,7 @@ window.doLogin=async()=>{
   }
 };
 window.SO=async()=>{if(!confirm('Çıkış yapmak istiyor musunuz?'))return;UN2.forEach(u=>u());UN2=[];await signOut(au);};
- 
+
 const tid=setTimeout(()=>{
   if(!document.getElementById('LS').classList.contains('hd')){
     document.getElementById('LS').classList.add('hd');
@@ -692,7 +692,7 @@ const tid=setTimeout(()=>{
     document.getElementById('LT').textContent='Zaman aşımı';
   }
 },8000);
- 
+
 onAuthStateChanged(au,async user=>{
   clearTimeout(tid);
   if(user){
@@ -1075,21 +1075,21 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,setDoc,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
- 
+
 const FC={apiKey:"AIzaSyCVy4e-wZyFaC4tVtO0Lh9NTiBClM3_clw",authDomain:"butce-takip-ce080.firebaseapp.com",projectId:"butce-takip-ce080",storageBucket:"butce-takip-ce080.firebasestorage.app",messagingSenderId:"128605859646",appId:"1:128605859646:web:5a09cba3f481c2606a466f"};
 const fa=initializeApp(FC),au=getAuth(fa),db=getFirestore(fa),gp=new GoogleAuthProvider();
- 
+
 const BK=[{id:'vakif',n:'Vakıfbank',h:'Kredi Kartı',ic:'🏦',co:'#1a73a7',bg:'#e8f4fb'},{id:'enpara',n:'Enpara',h:'Cem',ic:'💙',co:'#0066cc',bg:'#e6f0ff'},{id:'isbank',n:'İşbankası',h:'Kredi Kartı',ic:'🟦',co:'#003f87',bg:'#e6edf7'},{id:'akbank',n:'Akbank',h:'Kredi Kartı',ic:'🔴',co:'#cc0000',bg:'#ffebeb'},{id:'penpara',n:'Enpara',h:'Pelin',ic:'💜',co:'#7c3aed',bg:'#f3eeff'},{id:'other',n:'Diğer',h:'Kredi Kartı',ic:'💳',co:'#6b7280',bg:'#f3f4f6'}];
 const CE={expense:[{id:'food',e:'🍔',l:'Yemek'},{id:'market',e:'🛒',l:'Market'},{id:'transport',e:'🚌',l:'Ulaşım'},{id:'bills',e:'⚡',l:'Faturalar'},{id:'health',e:'💊',l:'Sağlık'},{id:'clothing',e:'👗',l:'Giyim'},{id:'entertainment',e:'🎮',l:'Eğlence'},{id:'edu',e:'📚',l:'Eğitim'},{id:'cleaning',e:'🧹',l:'Temizlik'},{id:'fuel',e:'⛽',l:'Akaryakıt'},{id:'other',e:'📦',l:'Diğer'}],income:[{id:'salary',e:'💼',l:'Maaş'},{id:'freelance',e:'💻',l:'Serbest'},{id:'rent',e:'🏠',l:'Kira'},{id:'gift',e:'🎁',l:'Hediye'},{id:'invest',e:'📈',l:'Yatırım'},{id:'other',e:'💰',l:'Diğer'}]};
 const FR=[{id:'weekday',l:'Haftanın Günü'},{id:'monthly',l:'Her Ay'},{id:'weekly',l:'Her Hafta'}];
 const CC=['#1db863','#3b82f6','#f59e0b','#e8414a','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1','#84cc16'];
 const DN=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];
- 
+
 let CU=null,UP='',CM_=mk(new Date()),RM=mk(new Date());
 let TX=[],CC2=[],LN=[],RC=[],RP2=[],QT=[],BD={};
 let TT='expense',TC=null,CB=null,RT='expense',RTC=null,RF=null,QC=null;
 let ELI=null,ERI=null,AQ=[],AI=0,ATI=null,SNT=null,NP=false,UN2=[];
- 
+
 function mk(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function fmt(n){return '₺'+Math.abs(n).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function ml(k){const[y,m]=k.split('-');return['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'][parseInt(m)-1]+' '+y;}
@@ -1099,7 +1099,7 @@ function ud(...p){return doc(db,'users',UP,...p);}
 function prevMk(ms){const[y,m]=ms.split('-').map(Number);const d=new Date(y,m-2,1);return mk(d);}
 function toast(msg){const t=document.createElement('div');t.textContent=msg;t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1a2e23;color:#fff;padding:12px 20px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;white-space:nowrap;font-family:DM Sans,sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.2)';document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
 window.HO=(e,id)=>{if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('op');};
- 
+
 function rdates(r,ms){
   const[y,m]=ms.split('-').map(Number),dim=new Date(y,m,0).getDate(),dates=[];
   if(r.startMonth&&ms<r.startMonth)return[];
@@ -1113,7 +1113,7 @@ function rdates(r,ms){
   }
   return dates;
 }
- 
+
 function rtx(ms){
   const v=[];
   RC.forEach(r=>rdates(r,ms).forEach(date=>{
@@ -1122,7 +1122,7 @@ function rtx(ms){
   }));
   return v;
 }
- 
+
 function ltx(ms){
   const[y,m]=ms.split('-').map(Number),v=[];
   LN.forEach(l=>{
@@ -1132,9 +1132,9 @@ function ltx(ms){
   });
   return v;
 }
- 
+
 function amt(ms){return[...TX.filter(t=>t.month===ms),...rtx(ms),...ltx(ms)];}
- 
+
 function startL(){
   UN2.forEach(u=>u());UN2=[];
   UN2.push(onSnapshot(uc('transactions'),s=>{TX=s.docs.map(d=>({id:d.id,...d.data()}));render();ss('ok','Canlı senkronizasyon');},()=>ss('er','Bağlantı hatası')));
@@ -1145,7 +1145,7 @@ function startL(){
   UN2.push(onSnapshot(uc('quickTemplates'),s=>{QT=s.docs.map(d=>({id:d.id,...d.data()}));renderQ();}));
   UN2.push(onSnapshot(ud('settings','budget'),s=>{BD=s.exists()?(s.data()||{}):{};render();}));
 }
- 
+
 async function seedRC(){
   const s=await getDocs(uc('recurring'));if(!s.empty)return;
   const b=writeBatch(db);
@@ -1153,7 +1153,7 @@ async function seedRC(){
   .forEach(d=>b.set(doc(uc('recurring')),{...d,startMonth:mk(new Date()),createdAt:Date.now()}));
   await b.commit();
 }
- 
+
 async function seedLN(){
   const s=await getDocs(uc('loans'));if(!s.empty)return;
   await addDoc(uc('loans'),{name:'Halkbank',amount:4928.61,installments:'39/120',payDay:15,startMonth:mk(new Date()),paidMonths:[],createdAt:Date.now()});
@@ -1174,7 +1174,7 @@ function render(){
   document.getElementById('BCC').textContent=fmt(cct);document.getElementById('BL').textContent=fmt(lt);
   renderOB(mTx,mCC);renderHS(inc,exp,ccp,sav);renderBG(exp,ccp);renderTX(mTx);renderCC(mCC);renderLN();renderRC();renderCT(mTx);
 }
- 
+
 function renderOB(mTx,mCC){
   const ob=document.getElementById('OB');
   const uCC=mCC.filter(c=>!c.paid),uLN=ltx(CM_).filter(t=>!t.isPaid),uRC=rtx(CM_).filter(t=>t.type==='expense'&&!t.isPaid);
@@ -1192,7 +1192,7 @@ function renderOB(mTx,mCC){
     uLN.map(t=>'<div class="oc" style="color:var(--blue)">🏦 '+t.desc+': '+fmt(t.amount)+'</div>').join('')+
     uRC.slice(0,3).map(t=>'<div class="oc" style="color:var(--amber)">⚙️ '+t.desc+': '+fmt(t.amount)+'</div>').join('');
 }
- 
+
 function renderHS(inc,exp,ccp,sav){
   const tot=exp+ccp,sc=inc>0?Math.max(0,Math.min(100,Math.round((1-tot/inc)*100))):0;
   const col=sc>=30?'var(--accent)':sc>=15?'var(--amber)':'var(--red)';
@@ -1212,21 +1212,21 @@ function renderHS(inc,exp,ccp,sav){
   if(pe>0){const d=((tot-pe)/pe*100).toFixed(0);hp.textContent=(d>0?'▲':'▼')+'%'+Math.abs(d)+' geçen aya';hp.className='hmv '+(d>0?'pru':'prd');}
   else{hp.textContent='—';hp.style.color='var(--muted)';}
 }
- 
+
 function renderBG(exp,ccp){
   const bg=BD[CM_]||0,sp=exp+ccp,pct=bg>0?Math.min(100,sp/bg*100):0;
   const bf=document.getElementById('BF');bf.style.width=pct+'%';bf.className='bf'+(pct>=100?' d':pct>=75?' w':'');
   document.getElementById('BGP').textContent=bg>0?pct.toFixed(0)+'%':'—';document.getElementById('BGP').style.color=pct>=100?'var(--red)':pct>=75?'var(--amber)':'var(--accent)';
   document.getElementById('BMS').textContent='Harcanan: '+fmt(sp);document.getElementById('BML').textContent=bg>0?'Limit: '+fmt(bg):'Bütçe belirle →';
 }
- 
+
 function renderQ(){
   const el=document.getElementById('QG');
   if(!QT.length){el.innerHTML='<div class="qadd" onclick="window.OQM()">+ Şablon Ekle</div><div class="qadd" onclick="window.OQM()">+ Şablon Ekle</div>';return;}
   const aC=[...CE.expense,...CE.income];
   el.innerHTML=QT.slice(0,6).map(q=>{const c=aC.find(x=>x.id===q.catId)||{e:'📦'};return'<div class="qb" onclick="window.FQT(\''+q.id+'\')"><div class="qe">'+(q.icon||c.e)+'</div><div><div class="qn">'+q.name+'</div><div class="qa">'+fmt(q.amount)+'</div></div></div>';}).join('')+'<div class="qadd" onclick="window.OQM()">+ Ekle</div>';
 }
- 
+
 function renderTX(mTx){
   const el=document.getElementById('TXL');
   const sorted=[...mTx].sort((a,b)=>new Date(b.date)-new Date(a.date));
@@ -1246,7 +1246,7 @@ function renderTX(mTx){
   });
   el.innerHTML=h;
 }
- 
+
 function renderCC(mCC){
   const el=document.getElementById('CCL');
   if(!mCC.length){el.innerHTML='<div class="em"><div class="ei">💳</div><p>Kart borcu eklenmedi.</p></div>';return;}
@@ -1256,7 +1256,7 @@ function renderCC(mCC){
     return '<div class="cci'+(c.paid?' pd':'')+'" style="animation-delay:'+i*.06+'s"><div class="cct"><div class="ccic" style="background:'+bk.bg+';color:'+bk.co+'">'+bk.ic+'</div><div class="ccin"><div class="ccb">'+bk.n+'</div><div class="cch">'+bk.h+(c.note?' · '+c.note:'')+'</div></div><div class="ccr"><div class="cca'+(c.paid?' p':'')+'">'+fmt(c.amount)+'</div>'+(ds?'<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: '+ds+'</div>':'')+'</div><button class="ccd" onclick="window.DCC(\''+c.id+'\')">×</button></div><div class="ccs"><div class="sb '+(c.paid?'p':'u')+'">'+(c.paid?'✓ Ödendi':'⏳ Ödenmedi')+'</div><button class="pb'+(c.paid?' un':'')+'" onclick="window.TCP(\''+c.id+'\','+c.paid+')">'+(c.paid?'↩ Geri Al':'✓ Ödendi Yap')+'</button></div></div>';
   }).join('');
 }
- 
+
 function renderLN(){
   const el=document.getElementById('LNL');
   if(!LN.length){el.innerHTML='<div class="em"><div class="ei">🏦</div><p>Kredi eklenmedi.</p></div>';return;}
@@ -1266,7 +1266,7 @@ function renderLN(){
     return '<div class="lni" style="animation-delay:'+i*.06+'s"><div style="display:flex;align-items:center;gap:10px"><div style="width:42px;height:42px;border-radius:12px;background:var(--bsoft);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏦</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+l.name+'</div><div style="font-size:11px;color:var(--muted)">Her ayın '+( l.payDay||'?')+'. günü</div></div><div style="text-align:right"><div style="font-size:17px;font-weight:700;color:var(--blue)">'+fmt(l.amount)+'</div><div style="font-size:10px;color:var(--muted)">/ay</div></div><button style="background:var(--bsoft);color:var(--blue);border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;margin-left:8px" onclick="window.ELN(\''+l.id+'\')">✏️</button><button class="ccd" onclick="window.DLN(\''+l.id+'\')">×</button></div><div style="display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div style="flex:1"><div class="lnc">'+pts[0]+'<span style="font-size:14px;color:var(--muted);font-weight:400">/'+pts[1]+'</span></div><div style="font-size:10px;color:var(--muted)">Kalan / Toplam Taksit</div></div><div class="sb '+(ip?'p':'u')+'">'+(ip?'✓ Ödendi':'⏳ Ödenmedi')+'</div><button class="pb'+(ip?' un':'')+'" onclick="window.TLP(\''+l.id+'\',\''+CM_+'\','+!!ip+')">'+(ip?'↩ Geri Al':'✓ Ödendi Yap')+'</button></div></div>';
   }).join('');
 }
- 
+
 function renderRC(){
   const el=document.getElementById('RCL');
   if(!RC.length){el.innerHTML='<div class="em"><div class="ei">🔁</div><p>Sabit gider eklenmedi.</p></div>';return;}
@@ -1278,7 +1278,7 @@ function renderRC(){
     return '<div class="ri" style="animation-delay:'+i*.05+'s"><div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;border-radius:11px;background:'+bg+';display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">'+c.e+'</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+r.desc+'</div><div style="font-size:11px;color:var(--muted)">'+fl+' · '+(r.months>0?r.months+' ay':'Süresiz')+'</div></div><div style="font-size:16px;font-weight:700;color:'+(r.type==='income'?'var(--accent)':'var(--red)')+'">'+( r.type==='income'?'+':'-')+fmt(r.amount)+'</div></div><div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><button style="flex:1;background:var(--asoft);color:var(--accent);border:none;border-radius:9px;padding:8px;font-size:12px;font-weight:700;font-family:DM Sans,sans-serif;cursor:pointer" onclick="window.ORCE(\''+r.id+'\',\''+r.desc+'\','+r.amount+')">✏️ Tutarı Güncelle</button><button style="background:var(--rsoft);color:var(--red);border:none;border-radius:9px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer" onclick="window.DRC(\''+r.id+'\')">×</button></div></div>';
   }).join('');
 }
- 
+
 function renderCT(mTx){
   const el=document.getElementById('CTL');
   const exp=mTx.filter(t=>t.type==='expense');
@@ -1373,7 +1373,7 @@ window.SRT=t=>{
     return '<div class="cb" id="rc-'+c.id+'" onclick="window.SRCT(''+c.id+'')"><div class="ce">'+c.e+'</div><div class="cl">'+c.l+'</div></div>';
   }).join('');
 };
- 
+
 let aQ=[],aI=0,aT2=null,sT2=null;
 function beep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();function b(f,s,d){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(0,ctx.currentTime+s);g.gain.linearRampToValueAtTime(.4,ctx.currentTime+s+.05);g.gain.linearRampToValueAtTime(0,ctx.currentTime+s+d-.05);o.start(ctx.currentTime+s);o.stop(ctx.currentTime+s+d);}for(let i=0;i<3;i++){b(880,i*.4,.3);b(1100,i*.4+.15,.15);}}catch(e){}}
 window.RNP=async()=>{if(!('Notification'in window))return;if(Notification.permission==='granted'){NP=true;toast('✅ Bildirimler zaten aktif!');return;}if(Notification.permission!=='denied'){const p=await Notification.requestPermission();NP=p==='granted';if(NP)toast('✅ Bildirimler aktif edildi!');}};
@@ -1390,7 +1390,7 @@ function chkAlarm(){
 function showAl(a){document.getElementById('AE').textContent=a.e;document.getElementById('AT').textContent=a.t;document.getElementById('AA').textContent=fmt(a.a);document.getElementById('AS').textContent=a.s;document.getElementById('AO').style.display='flex';beep();if(NP)try{new Notification('💳 '+a.t,{body:a.s+' · '+fmt(a.a),tag:'bt-alarm',requireInteraction:true});}catch(e){}if(navigator.vibrate)navigator.vibrate([400,200,400,200,400]);clearInterval(aT2);aT2=setInterval(()=>{beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},8000);}
 window.DA=()=>{clearInterval(aT2);clearTimeout(sT2);aI++;if(aI<aQ.length)setTimeout(()=>showAl(aQ[aI]),400);else document.getElementById('AO').style.display='none';};
 window.SNA=()=>{clearInterval(aT2);document.getElementById('AO').style.display='none';sT2=setTimeout(()=>showAl(aQ[aI]),600000);toast('⏰ 10 dakika sonra tekrar hatırlatılacak');};
- 
+
 window.doLogin=async()=>{
   try{
     document.getElementById('LG').classList.add('hd');
@@ -1406,7 +1406,7 @@ window.doLogin=async()=>{
   }
 };
 window.SO=async()=>{if(!confirm('Çıkış yapmak istiyor musunuz?'))return;UN2.forEach(u=>u());UN2=[];await signOut(au);};
- 
+
 const tid=setTimeout(()=>{
   if(!document.getElementById('LS').classList.contains('hd')){
     document.getElementById('LS').classList.add('hd');
@@ -1414,7 +1414,7 @@ const tid=setTimeout(()=>{
     document.getElementById('LT').textContent='Zaman aşımı';
   }
 },8000);
- 
+
 onAuthStateChanged(au,async user=>{
   clearTimeout(tid);
   if(user){
@@ -1442,4 +1442,4 @@ onAuthStateChanged(au,async user=>{
 });
 </script>
 </body>
-</html
+</html>
