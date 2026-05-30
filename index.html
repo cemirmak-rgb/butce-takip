@@ -520,7 +520,7 @@ function renderTX(mTx){
     let ab='';
     if(t.isAuto&&t.rpk!==undefined)ab='<button class="pb '+(t.isPaid?'un':'')+'" style="font-size:10px;padding:4px 8px" onclick="window.TRP(\''+t.rpk+'\','+t.isPaid+')">'+(t.isPaid?'↩':'✓')+'</button>';
     else if(!t.isAuto)ab='<button class="txd" onclick="window.DTX(\''+t.id+'\')">×</button>';
-    h+='<div class="txi'+(t.isAuto?' au':'')+'" style="animation-delay:'+i*.03+'s;'+op+'"><div class="txe" style="background:'+bg+'">'+c.e+'</div><div class="txf"><div class="txn">'+(t.desc||c.l)+who+atag+'</div><div class="txm">'+c.l+'</div></div><div class="txr"><div class="txa '+(t.type)+'" style="'+(t.isPaid?'text-decoration:line-through;opacity:.6':'')+'">'+(t.type==='income'?'+':'-')+fmt(t.amount)+'</div></div>'+ab+'</div>';
+    h+='<div class="txi'+(t.isAuto?' au':'')+'" style="animation-delay:'+i*.03+'s;'+op+'"><div class="txe" style="background:'+bg+'">'+c.e+'</div><div class="txf"><div class="txn">'+(t.desc||c.l)+who+atag+'</div><div class="txm">'+c.l+'</div></div><div class="txr"><div class="txa '+(t.type==='income'?'inc':'exp')+'" style="'+(t.isPaid?'text-decoration:line-through;opacity:.6':'')+'">'+(t.type==='income'?'+':'-')+fmt(t.amount)+'</div></div>'+ab+'</div>';
   });
   el.innerHTML=h;
 }
@@ -598,7 +598,15 @@ window.ST2=tab=>{
   });
 };
 window.OTX=()=>{TC=null;document.getElementById('TXA').value='';document.getElementById('TXD').value='';document.getElementById('TXDt').value=new Date().toISOString().split('T')[0];window.STT('expense');document.getElementById('TXO').classList.add('op');setTimeout(()=>document.getElementById('TXA').focus(),400);};
-window.STT=t=>{TT=t;TC=null;document.getElementById('BTE').className='tb'+(t==='expense'?'':' ae');document.getElementById('BTI').className='tb'+(t==='income'?'':' ai2');document.getElementById('TXSV').className='sv'+(t==='expense'?' ex':'');document.getElementById('TXSV').textContent=t==='expense'?'💸 Gider Ekle':'💰 Gelir Ekle';document.getElementById('TXC').innerHTML=CE[t].map(c=>'<div class="cb" id="tc-'+c.id+'" onclick="window.STC(\''+c.id+'\')"><div class="ce">'+c.e+'</div><div class="cl">'+c.l+'</div></div>').join('');};
+window.STT=t=>{
+  TT=t;TC=null;
+  document.getElementById('BTE').className='tb'+(t==='expense'?' ai2':'');
+  document.getElementById('BTI').className='tb'+(t==='income'?' ae':'');
+  document.getElementById('TXSV').className='sv'+(t==='expense'?' ex':'');
+  document.getElementById('TXSV').textContent=t==='expense'?'💸 Gider Ekle':'💰 Gelir Ekle';
+  const cats=t==='income'?CE.income:CE.expense;
+  document.getElementById('TXC').innerHTML=cats.map(c=>'<div class="cb" id="tc-'+c.id+'" onclick="window.STC(''+c.id+'')"><div class="ce">'+c.e+'</div><div class="cl">'+c.l+'</div></div>').join('');
+};
 window.STC=id=>{TC=id;document.querySelectorAll('#TXC .cb').forEach(e=>e.classList.remove('sel'));document.getElementById('tc-'+id)?.classList.add('sel');};
 window.SVTX=async(pf)=>{
   const amt=pf?.amount||parseFloat(document.getElementById('TXA').value);
