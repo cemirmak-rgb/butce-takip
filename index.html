@@ -529,13 +529,37 @@ function renderTX(mTx){
   el.innerHTML=h;
 }
 
-function renderCC(mCC){
-  const el=document.getElementById('CCL');
-  if(!mCC.length){el.innerHTML='<div class="em"><div class="ei">💳</div><p>Kart borcu eklenmedi.</p></div>';return;}
-  el.innerHTML=mCC.map((c,i)=>{
-    const bk=BK.find(b=>b.id===c.bankId)||BK[5];
-    const ds=c.dueDate?new Date(c.dueDate+'T12:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'short'}):'';
-    return '<div class="cci'+(c.paid?' pd':'')+'" style="animation-delay:'+i*.06+'s"><div class="cct"><div class="ccic" style="background:'+bk.bg+';color:'+bk.co+'">'+bk.ic+'</div><div class="ccin"><div class="ccb">'+bk.n+'</div><div class="cch">'+bk.h+(c.note?' · '+c.note:'')+'</div></div><div class="ccr"><div class="cca'+(c.paid?' p':'')+'">'+fmt(c.amount)+'</div>'+(ds?'<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: '+ds+'</div>':'')+'</div><button class="ccd" onclick="window.DCC(\''+c.id+'\')">×</button></div><div class="ccs"><div class="sb '+(c.paid?'p':'u')+'">'+(c.paid?'✓ Ödendi':'⏳ Ödenmedi')+'</div><button class="pb'+(c.paid?' un':'')+'" onclick="window.TCP(""+c.id+'",'+c.paid+')'>'+(c.paid?'↩ Geri Al':'✓ Ödendi Yap')+'</button></div></div>';
+function renderCC(mCC) {
+  const el = document.getElementById('CCL');
+  if (!mCC.length) {
+    el.innerHTML = '<div class="em"><div class="ei">💳</div><p>Kart borcu eklenmedi.</p></div>';
+    return;
+  }
+
+  el.innerHTML = mCC.map((c, i) => {
+    const bk = BK.find(b => b.id === c.bankId) || BK[5];
+    const ds = c.dueDate ? new Date(c.dueDate + 'T12:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '';
+    
+    return `<div class="cci${c.paid ? ' pd' : ''}" style="animation-delay:${i * 0.06}s">
+      <div class="cct">
+        <div class="ccic" style="background:${bk.bg};color:${bk.co}">${bk.ic}</div>
+        <div class="ccin">
+          <div class="ccb">${bk.n}</div>
+          <div class="cch">${bk.h}${c.note ? ' · ' + c.note : ''}</div>
+        </div>
+        <div class="ccr">
+          <div class="cca${c.paid ? ' p' : ''}">${fmt(c.amount)}</div>
+          ${ds ? '<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: ' + ds + '</div>' : ''}
+        </div>
+        <button class="ccd" onclick="window.DCC('${c.id}')">×</button>
+      </div>
+      <div class="ccs">
+        <div class="sb ${c.paid ? 'p' : 'u'}">${c.paid ? '✓ Ödendi' : '⏳ Ödenmedi'}</div>
+        <button class="pb${c.paid ? ' un' : ''}" onclick="window.TCP('${c.id}', ${c.paid})">
+          ${c.paid ? '↩ Geri Al' : '✓ Ödendi Yap'}
+        </button>
+      </div>
+    </div>`;
   }).join('');
 }
 
