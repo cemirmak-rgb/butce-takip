@@ -505,61 +505,14 @@ function renderQ(){
   el.innerHTML=QT.slice(0,6).map(q=>{const c=aC.find(x=>x.id===q.catId)||{e:'📦'};return'<div class="qb" onclick="window.FQT(\''+q.id+'\')"><div class="qe">'+(q.icon||c.e)+'</div><div><div class="qn">'+q.name+'</div><div class="qa">'+fmt(q.amount)+'</div></div></div>';}).join('')+'<div class="qadd" onclick="window.OQM()">+ Ekle</div>';
 }
 
-function renderTX(mTx){
-  const el=document.getElementById('TXL');
-  const sorted=[...mTx].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if(!sorted.length){el.innerHTML='<div class="em"><div class="ei">💸</div><p>İşlem yok. + Ekle ile başlayın.</p></div>';return;}
-  const aC=[...CE.expense,...CE.income];let ld='',h='';
-  sorted.forEach((t,i)=>{
-    if(t.date!==ld){const d=new Date(t.date+'T12:00:00');h+='<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:6px 0 2px;display:flex;align-items:center;gap:8px">'+d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'})+'<div style="flex:1;height:1px;background:var(--border)"></div></div>';ld=t.date;}
-    const c=aC.find(x=>x.id===t.catId)||{e:'📦',l:'Diğer'};
-    const bg=t.type==='income'?'rgba(29,184,99,.1)':'rgba(232,65,74,.08)';
-    const op=t.isPaid?'opacity:.5;':'';
-    const who=t.addedBy?'<span class="wt" style="background:'+(t.addedBy==='pelin'?'var(--psoft)':'var(--asoft)')+';color:'+(t.addedBy==='pelin'?'var(--purple)':'var(--accent)')+'">'+( t.addedBy==='pelin'?'Pelin':'Cem')+'</span>':'';
-    const atag=t.isAuto?'<span style="font-size:9px;background:'+(t.isPaid?'var(--asoft)':'var(--border)')+';color:'+(t.isPaid?'var(--accent)':'var(--muted)')+';border-radius:4px;padding:1px 4px;margin-left:4px">'+(t.isPaid?'ödendi':'oto')+'</span>':'';
-    let ab='';
-    if(t.isAuto&&t.rpk!==undefined){
-      var rpkE=t.rpk;
-      ab='<button class="pb '+(t.isPaid?'un':'')+'" style="font-size:10px;padding:4px 8px" data-rpk="'+rpkE+'" data-paid="'+(t.isPaid?'1':'0')+'" onclick="var b=this;window.TRP(b.dataset.rpk,b.dataset.paid===\'1\')">'+(t.isPaid?'↩':'✓')+'</button>';
-    } else if(!t.isAuto){
-      ab='<button class="txd" data-txid="'+t.id+'" onclick="window.DTX(this.dataset.txid)">&#215;</button>';
-    }
-    h+='<div class="txi'+(t.isAuto?' au':'')+'" style="animation-delay:'+i*.03+'s;'+op+'"><div class="txe" style="background:'+bg+'">'+c.e+'</div><div class="txf"><div class="txn">'+(t.desc||c.l)+who+atag+'</div><div class="txm">'+c.l+'</div></div><div class="txr"><div class="txa '+(t.type==='income'?'inc':'exp')+'" style="'+(t.isPaid?'text-decoration:line-through;opacity:.6':'')+'">'+(t.type==='income'?'+':'-')+fmt(t.amount)+'</div></div>'+ab+'</div>';
-  });
-  el.innerHTML=h;
-}
 
-function renderCC(mCC) {
-  const el = document.getElementById('CCL');
-  if (!mCC.length) {
-    el.innerHTML = '<div class="em"><div class="ei">💳</div><p>Kart borcu eklenmedi.</p></div>';
-    return;
-  }
-
-  el.innerHTML = mCC.map((c, i) => {
-    const bk = BK.find(b => b.id === c.bankId) || BK[5];
-    const ds = c.dueDate ? new Date(c.dueDate + 'T12:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '';
-    
-    return `<div class="cci${c.paid ? ' pd' : ''}" style="animation-delay:${i * 0.06}s">
-      <div class="cct">
-        <div class="ccic" style="background:${bk.bg};color:${bk.co}">${bk.ic}</div>
-        <div class="ccin">
-          <div class="ccb">${bk.n}</div>
-          <div class="cch">${bk.h}${c.note ? ' · ' + c.note : ''}</div>
-        </div>
-        <div class="ccr">
-          <div class="cca${c.paid ? ' p' : ''}">${fmt(c.amount)}</div>
-          ${ds ? '<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: ' + ds + '</div>' : ''}
-        </div>
-        <button class="ccd" onclick="window.DCC('${c.id}')">×</button>
-      </div>
-      <div class="ccs">
-        <div class="sb ${c.paid ? 'p' : 'u'}">${c.paid ? '✓ Ödendi' : '⏳ Ödenmedi'}</div>
-        <button class="pb${c.paid ? ' un' : ''}" onclick="window.TCP('${c.id}', ${c.paid})">
-          ${c.paid ? '↩ Geri Al' : '✓ Ödendi Yap'}
-        </button>
-      </div>
-    </div>`;
+function renderCC(mCC){
+  const el=document.getElementById('CCL');
+  if(!mCC.length){el.innerHTML='<div class="em"><div class="ei">💳</div><p>Kart borcu eklenmedi.</p></div>';return;}
+  el.innerHTML=mCC.map((c,i)=>{
+    const bk=BK.find(b=>b.id===c.bankId)||BK[5];
+    const ds=c.dueDate?new Date(c.dueDate+'T12:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'short'}):'';
+    return '<div class="cci'+(c.paid?' pd':'')+'" style="animation-delay:'+i*.06+'s"><div class="cct"><div class="ccic" style="background:'+bk.bg+';color:'+bk.co+'">'+bk.ic+'</div><div class="ccin"><div class="ccb">'+bk.n+'</div><div class="cch">'+bk.h+(c.note?' · '+c.note:'')+'</div></div><div class="ccr"><div class="cca'+(c.paid?' p':'')+'">'+fmt(c.amount)+'</div>'+(ds?'<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: '+ds+'</div>':'')+'</div><button class="ccd" onclick="window.DCC(\''+c.id+'\')">×</button></div><div class="ccs"><div class="sb '+(c.paid?'p':'u')+'">'+(c.paid?'✓ Ödendi':'⏳ Ödenmedi')+'</div><button class="pb'+(c.paid?' un':'')+'" onclick="window.TCP(""+c.id+'",'+c.paid+')'>'+(c.paid?'↩ Geri Al':'✓ Ödendi Yap')+'</button></div></div>';
   }).join('');
 }
 
@@ -1255,25 +1208,6 @@ function renderQ(){
   el.innerHTML=QT.slice(0,6).map(q=>{const c=aC.find(x=>x.id===q.catId)||{e:'📦'};return'<div class="qb" onclick="window.FQT(\''+q.id+'\')"><div class="qe">'+(q.icon||c.e)+'</div><div><div class="qn">'+q.name+'</div><div class="qa">'+fmt(q.amount)+'</div></div></div>';}).join('')+'<div class="qadd" onclick="window.OQM()">+ Ekle</div>';
 }
 
-function renderTX(mTx){
-  const el=document.getElementById('TXL');
-  const sorted=[...mTx].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if(!sorted.length){el.innerHTML='<div class="em"><div class="ei">💸</div><p>İşlem yok. + Ekle ile başlayın.</p></div>';return;}
-  const aC=[...CE.expense,...CE.income];let ld='',h='';
-  sorted.forEach((t,i)=>{
-    if(t.date!==ld){const d=new Date(t.date+'T12:00:00');h+='<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:6px 0 2px;display:flex;align-items:center;gap:8px">'+d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'})+'<div style="flex:1;height:1px;background:var(--border)"></div></div>';ld=t.date;}
-    const c=aC.find(x=>x.id===t.catId)||{e:'📦',l:'Diğer'};
-    const bg=t.type==='income'?'rgba(29,184,99,.1)':'rgba(232,65,74,.08)';
-    const op=t.isPaid?'opacity:.5;':'';
-    const who=t.addedBy?'<span class="wt" style="background:'+(t.addedBy==='pelin'?'var(--psoft)':'var(--asoft)')+';color:'+(t.addedBy==='pelin'?'var(--purple)':'var(--accent)')+'">'+( t.addedBy==='pelin'?'Pelin':'Cem')+'</span>':'';
-    const atag=t.isAuto?'<span style="font-size:9px;background:'+(t.isPaid?'var(--asoft)':'var(--border)')+';color:'+(t.isPaid?'var(--accent)':'var(--muted)')+';border-radius:4px;padding:1px 4px;margin-left:4px">'+(t.isPaid?'ödendi':'oto')+'</span>':'';
-    let ab='';
-    if(t.isAuto&&t.rpk!==undefined){var esc1=t.rpk.replace(/'/g,"\\'");ab='<button class="pb '+(t.isPaid?'un':'')+'" style="font-size:10px;padding:4px 8px" onclick="window.TRP(""+t.rpk+'",'+t.isPaid+')'>'+(t.isPaid?'↩':'✓')+'</button>';}
-    else if(!t.isAuto){ab='<button class="txd" onclick="window.DTX(""+t.id+'")'>×</button>';}
-    h+='<div class="txi'+(t.isAuto?' au':'')+'" style="animation-delay:'+i*.03+'s;'+op+'"><div class="txe" style="background:'+bg+'">'+c.e+'</div><div class="txf"><div class="txn">'+(t.desc||c.l)+who+atag+'</div><div class="txm">'+c.l+'</div></div><div class="txr"><div class="txa '+(t.type==='income'?'inc':'exp')+'" style="'+(t.isPaid?'text-decoration:line-through;opacity:.6':'')+'">'+(t.type==='income'?'+':'-')+fmt(t.amount)+'</div></div>'+ab+'</div>';
-  });
-  el.innerHTML=h;
-}
 
 function renderCC(mCC){
   const el=document.getElementById('CCL');
@@ -1977,25 +1911,6 @@ function renderQ(){
   el.innerHTML=QT.slice(0,6).map(q=>{const c=aC.find(x=>x.id===q.catId)||{e:'📦'};return'<div class="qb" onclick="window.FQT(\''+q.id+'\')"><div class="qe">'+(q.icon||c.e)+'</div><div><div class="qn">'+q.name+'</div><div class="qa">'+fmt(q.amount)+'</div></div></div>';}).join('')+'<div class="qadd" onclick="window.OQM()">+ Ekle</div>';
 }
 
-function renderTX(mTx){
-  const el=document.getElementById('TXL');
-  const sorted=[...mTx].sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if(!sorted.length){el.innerHTML='<div class="em"><div class="ei">💸</div><p>İşlem yok. + Ekle ile başlayın.</p></div>';return;}
-  const aC=[...CE.expense,...CE.income];let ld='',h='';
-  sorted.forEach((t,i)=>{
-    if(t.date!==ld){const d=new Date(t.date+'T12:00:00');h+='<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:6px 0 2px;display:flex;align-items:center;gap:8px">'+d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',weekday:'long'})+'<div style="flex:1;height:1px;background:var(--border)"></div></div>';ld=t.date;}
-    const c=aC.find(x=>x.id===t.catId)||{e:'📦',l:'Diğer'};
-    const bg=t.type==='income'?'rgba(29,184,99,.1)':'rgba(232,65,74,.08)';
-    const op=t.isPaid?'opacity:.5;':'';
-    const who=t.addedBy?'<span class="wt" style="background:'+(t.addedBy==='pelin'?'var(--psoft)':'var(--asoft)')+';color:'+(t.addedBy==='pelin'?'var(--purple)':'var(--accent)')+'">'+( t.addedBy==='pelin'?'Pelin':'Cem')+'</span>':'';
-    const atag=t.isAuto?'<span style="font-size:9px;background:'+(t.isPaid?'var(--asoft)':'var(--border)')+';color:'+(t.isPaid?'var(--accent)':'var(--muted)')+';border-radius:4px;padding:1px 4px;margin-left:4px">'+(t.isPaid?'ödendi':'oto')+'</span>':'';
-    let ab='';
-    if(t.isAuto&&t.rpk!==undefined){var esc1=t.rpk.replace(/'/g,"\\'");ab='<button class="pb '+(t.isPaid?'un':'')+'" style="font-size:10px;padding:4px 8px" onclick="window.TRP(""+t.rpk+'",'+t.isPaid+')'>'+(t.isPaid?'↩':'✓')+'</button>';}
-    else if(!t.isAuto){ab='<button class="txd" onclick="window.DTX(""+t.id+'")'>×</button>';}
-    h+='<div class="txi'+(t.isAuto?' au':'')+'" style="animation-delay:'+i*.03+'s;'+op+'"><div class="txe" style="background:'+bg+'">'+c.e+'</div><div class="txf"><div class="txn">'+(t.desc||c.l)+who+atag+'</div><div class="txm">'+c.l+'</div></div><div class="txr"><div class="txa '+(t.type==='income'?'inc':'exp')+'" style="'+(t.isPaid?'text-decoration:line-through;opacity:.6':'')+'">'+(t.type==='income'?'+':'-')+fmt(t.amount)+'</div></div>'+ab+'</div>';
-  });
-  el.innerHTML=h;
-}
 
 function renderCC(mCC){
   const el=document.getElementById('CCL');
