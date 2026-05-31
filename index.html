@@ -9,9 +9,6 @@
 <title>BütçeTakip</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Stil kodların buraya devam edebilir */
-  </style>
-</head>
 :root{--bg:#f0faf5;--bg2:#fff;--card:#fff;--border:#e2f0ea;--ink:#1a2e23;--ink2:#4a6658;--muted:#8fada0;--accent:#1db863;--asoft:#e6f9ee;--red:#e8414a;--rsoft:#fdeeed;--amber:#f59e0b;--asoft2:#fef3c7;--purple:#7c3aed;--psoft:#f3eeff;--blue:#3b82f6;--bsoft:#eff6ff;--sh:0 2px 16px rgba(29,184,99,0.08);--shlg:0 8px 40px rgba(29,184,99,0.14)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
@@ -212,24 +209,33 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .sc{margin:14px 20px 0;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px}
 .sct{font-size:13px;font-weight:700;color:var(--ink2);margin-bottom:12px}
 </style>
-</head><body>
+</head>
+</style>
+</head>
+<body>
 <div class="fs" id="LS" style="background:var(--bg)">
   <div class="lg">Bütçe<span>Takip</span></div>
   <div class="sp" style="margin-top:20px"></div>
   <div style="font-size:13px;color:var(--muted);margin-top:12px" id="LT">Yükleniyor...</div>
 </div>
 <div class="fs hd" id="LG" style="background:var(--bg)">
-  <div style="text-align:center;margin-bottom:40px">
+  <div style="text-align:center;margin-bottom:32px">
     <div style="font-size:56px;margin-bottom:12px">💰</div>
     <div class="lg">Bütçe<span>Takip</span></div>
     <div style="font-size:14px;color:var(--muted);margin-top:8px">Kişisel bütçe yönetim uygulaması</div>
   </div>
-  <button class="gb" onclick="window.doLogin()">
-    <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20H24v8h11.3C33.6 33.1 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-8 20-20 0-1.3-.1-2.7-.4-4z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.5 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-1.9 13.5-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.2 0-9.6-2.9-11.3-7.1l-6.5 5C9.7 39.8 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20H24v8h11.3c-.9 2.5-2.6 4.6-4.8 6l6.2 5.2C40.6 36 44 30.4 44 24c0-1.3-.1-2.7-.4-4z"/></svg>
-    Google ile Giriş Yap
-  </button>
-  <div style="font-size:12px;color:var(--muted);margin-top:24px;text-align:center;line-height:1.6">Her kullanıcı kendi verilerini görür</div>
+  <div style="width:100%;max-width:320px">
+    <div id="LG_ERR" style="display:none;background:var(--rsoft);color:var(--red);padding:10px 14px;border-radius:12px;font-size:13px;margin-bottom:12px;text-align:center"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">E-Posta</div>
+    <input id="LG_EMAIL" type="email" placeholder="ornek@email.com" style="background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:13px 15px;color:var(--ink);font-size:16px;font-family:DM Sans,sans-serif;width:100%;outline:none;margin-bottom:12px">
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">Şifre</div>
+    <input id="LG_PASS" type="password" placeholder="••••••••" style="background:var(--card);border:1.5px solid var(--border);border-radius:13px;padding:13px 15px;color:var(--ink);font-size:16px;font-family:DM Sans,sans-serif;width:100%;outline:none;margin-bottom:16px">
+    <button onclick="window.doLogin()" style="background:var(--accent);color:#fff;border:none;border-radius:15px;padding:16px;font-size:15px;font-weight:600;font-family:DM Sans,sans-serif;width:100%;cursor:pointer;box-shadow:0 4px 16px rgba(29,184,99,.35);margin-bottom:10px">Giriş Yap</button>
+    <button onclick="window.doRegister()" style="background:var(--asoft);color:var(--accent);border:1.5px solid var(--accent);border-radius:15px;padding:14px;font-size:14px;font-weight:600;font-family:DM Sans,sans-serif;width:100%;cursor:pointer">Yeni Hesap Oluştur</button>
+    <div style="font-size:11px;color:var(--muted);margin-top:16px;text-align:center">Her kullanıcı kendi verilerini görür. Verileriniz güvenle saklanır.</div>
+  </div>
 </div>
+
 <div id="APP" style="display:none">
   <div class="pg" id="HP">
     <div class="sync ok" id="SB"><div class="sd"></div><span id="ST">Canlı senkronizasyon</span></div>
@@ -345,7 +351,8 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 </div>
 <button class="mic" id="MIC" onclick="window.SV()">🎤</button>
 <div class="vm" id="VM"><div class="vc">🎤</div><div class="vt" id="VT">Dinleniyor...</div><div class="vh" id="VH">"Gider market 450 lira"</div><button class="vx" onclick="window.XV()">İptal</button></div>
-<div class="ao" id="AO"><div class="ab2"><div style="font-size:56px;margin-bottom:8px" id="AE">🔔</div><div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:8px">Son Ödeme Günü!</div><div id="AT" style="font-size:15px;color:var(--ink2);margin-bottom:6px">—</div><div style="font-size:28px;font-weight:800;color:var(--red);margin:12px 0" id="AA">—</div><div style="font-size:12px;color:var(--muted)" id="AS">—</div><div style="display:flex;gap:10px;margin-top:20px"><button onclick="window.DA()" style="flex:1;background:var(--bg);color:var(--ink);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer">Tamam</button><button onclick="window.SNA()" style="flex:1;background:var(--accent<input class="fi" type="date" id="TXDt">div class="mo"><div class="mh"></div><div class="mt">Yeni İşlem</div><div class="tt"><button class="tb" id="BTE" onclick="window.STT('e')">💸 Gider</button><button class=<input class="fi" type="date" id="TXDt">"tb" id="BTI" onclick="window.STT('i')">💰 Gelir</button></div><div class="fl">Tutar (₺)</div><input class="fi ai" type="number" id="TXA" placeholder="0,00" min="0" step="0.01"><div class="fl">Açıklama</div><input class="fi" type="text" id="TXD" placeholder="Ne için?" maxlength="40"><div class="fl">Kategori</div><div class="cg" id="TXC"></div><div class="fl">Tarih</div><input class="fi" type="date" id="TXDt"><button class="sv" id="TXSV" onclick="window.SVTX()">Kaydet</button></div></div>
+<div class="ao" id="AO"><div class="ab2"><div style="font-size:56px;margin-bottom:8px" id="AE">🔔</div><div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:8px">Son Ödeme Günü!</div><div id="AT" style="font-size:15px;color:var(--ink2);margin-bottom:6px">—</div><div style="font-size:28px;font-weight:800;color:var(--red);margin:12px 0" id="AA">—</div><div style="font-size:12px;color:var(--muted)" id="AS">—</div><div style="display:flex;gap:10px;margin-top:20px"><button onclick="window.DA()" style="flex:1;background:var(--bg);color:var(--ink);border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer">Tamam</button><button onclick="window.SNA()" style="flex:1;background:var(--accent);color:#fff;border:none;border-radius:14px;padding:14px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer">10 dk Ertele</button></div></div></div>
+<div class="ov" id="TXO" onclick="window.HO(event,'TXO')"><div class="mo"><div class="mh"></div><div class="mt">Yeni İşlem</div><div class="tt"><button class="tb" id="BTE" onclick="window.STT('e')">💸 Gider</button><button class="tb" id="BTI" onclick="window.STT('i')">💰 Gelir</button></div><div class="fl">Tutar (₺)</div><input class="fi ai" type="number" id="TXA" placeholder="0,00" min="0" step="0.01"><div class="fl">Açıklama</div><input class="fi" type="text" id="TXD" placeholder="Ne için?" maxlength="40"><div class="fl">Kategori</div><div class="cg" id="TXC"></div><div class="fl">Tarih</div><input class="fi" type="date" id="TXDt"><button class="sv" id="TXSV" onclick="window.SVTX()">Kaydet</button></div></div>
 <div class="ov" id="CCO" onclick="window.HO(event,'CCO')"><div class="mo"><div class="mh"></div><div class="mt">Kredi Kartı Borcu</div><div class="fl">Kart Seç</div><div class="bg" id="CCG"></div><div class="fl">Tutar (₺)</div><input class="fi ai" type="number" id="CCA2" placeholder="0,00" min="0" step="0.01"><div class="fl">Son Ödeme Tarihi</div><div class="fl">Not</div><input class="fi" type="text" id="CCN" placeholder="Aralık ekstresi..." maxlength="40"><button class="sv cc" onclick="window.SVCC()">💳 Kartı Ekle</button></div></div>
 <div class="ov" id="LNO" onclick="window.HO(event,'LNO')"><div class="mo"><div class="mh"></div><div class="mt" id="LNMT">Kredi Ekle</div><div class="fl">Banka Adı</div><input class="fi" type="text" id="LNN" placeholder="örn: Halkbank" maxlength="30"><div class="r2"><div><div class="fl">Aylık Taksit (₺)</div><input class="fi ai" type="number" id="LNA" placeholder="0,00" min="0" step="0.01" style="font-size:18px"></div><div><div class="fl">Kalan/Toplam</div><input class="fi" type="text" id="LNI" placeholder="39/120" maxlength="10" style="text-align:center;font-weight:700"></div></div><div class="fl">Her Ayın Kaçında?</div><input class="fi" type="number" id="LND" placeholder="15" min="1" max="31"><button class="sv bl" onclick="window.SVLN()">🏦 Kaydet</button></div></div>
 <div class="ov" id="RCO" onclick="window.HO(event,'RCO')"><div class="mo"><div class="mh"></div><div class="mt">Sabit Gider Ekle</div><div class="tt"><button class="tb" id="RCE" onclick="window.SRT('e')">💸 Gider</button><button class="tb" id="RCI" onclick="window.SRT('i')">💰 Gelir</button></div><div class="fl">Açıklama</div><input class="fi" type="text" id="RCD" placeholder="örn: Temizlik" maxlength="40"><div class="fl">Tutar (₺)</div><input class="fi ai" type="number" id="RCA" placeholder="0,00" min="0" step="0.01"><div class="fl">Kategori</div><div class="cg" id="RCC2"></div><div class="fl">Tekrar Sıklığı</div><div class="fg" id="RCF"></div><div id="WDR" style="display:none"><div class="fl">Hangi Gün?</div><select class="fi fis" id="RCW"><option value="1">Pazartesi</option><option value="2">Salı</option><option value="3">Çarşamba</option><option value="4">Perşembe</option><option value="5">Cuma</option><option value="6">Cumartesi</option><option value="0">Pazar</option></select></div><div id="MDR" style="display:none"><div class="fl">Ayın Kaçında?</div><input class="fi" type="number" id="RCM" placeholder="1" min="1" max="31"></div><div class="fl">Kaç Ay? (0=süresiz)</div><input class="fi" type="number" id="RCMo" placeholder="0" min="0" value="0"><button class="sv pu" onclick="window.SVRC()">🔁 Kaydet</button></div></div>
@@ -354,7 +361,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 <div class="ov" id="QMO" onclick="window.HO(event,'QMO')"><div class="mo"><div class="mh"></div><div class="mt">Hızlı Şablon</div><div class="fl">Adı</div><input class="fi" type="text" id="QMN" placeholder="örn: Shell Akaryakıt" maxlength="30"><div class="fl">Tutar (₺)</div><input class="fi ai" type="number" id="QMA" placeholder="0,00" min="0" step="0.01"><div class="fl">Emoji</div><input class="fi" type="text" id="QME" placeholder="⛽" maxlength="2" style="text-align:center;font-size:28px"><div class="fl">Kategori</div><div class="cg" id="QMC"></div><button class="sv" onclick="window.SVQM()">Şablonu Kaydet</button><div id="QML" style="margin-top:16px"></div></div></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,setDoc,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FC={apiKey:"AIzaSyCVy4e-wZyFaC4tVtO0Lh9NTiBClM3_clw",authDomain:"butce-takip-ce080.firebaseapp.com",projectId:"butce-takip-ce080",storageBucket:"butce-takip-ce080.firebasestorage.app",messagingSenderId:"128605859646",appId:"1:128605859646:web:5a09cba3f481c2606a466f"};
@@ -517,18 +524,60 @@ function showAl(a){document.getElementById('AE').textContent=a.e;document.getEle
 window.DA=()=>{clearInterval(aT2);clearTimeout(sT2);aI++;if(aI<aQ.length)setTimeout(()=>showAl(aQ[aI]),400);else document.getElementById('AO').style.display='none';};
 window.SNA=()=>{clearInterval(aT2);document.getElementById('AO').style.display='none';sT2=setTimeout(()=>showAl(aQ[aI]),600000);toast('⏰ 10 dakika sonra tekrar hatırlatılacak');};
 
+// Enter key for login
+document.addEventListener('keydown', function(e){
+  if(e.key==='Enter'){
+    const lg=document.getElementById('LG');
+    if(lg && !lg.classList.contains('hd')) window.doLogin();
+  }
+});
+
 window.doLogin=async()=>{
+  const email=document.getElementById('LG_EMAIL').value.trim();
+  const pass=document.getElementById('LG_PASS').value;
+  const errEl=document.getElementById('LG_ERR');
+  errEl.style.display='none';
+  if(!email||!pass){errEl.textContent='E-posta ve şifre girin.';errEl.style.display='block';return;}
   try{
     document.getElementById('LG').classList.add('hd');
     document.getElementById('LS').classList.remove('hd');
-    document.getElementById('LT').textContent='Google ile giriş yapılıyor...';
-    await signInWithPopup(au,gp);
+    document.getElementById('LT').textContent='Giriş yapılıyor...';
+    await signInWithEmailAndPassword(au,email,pass);
   }catch(e){
     document.getElementById('LG').classList.remove('hd');
     document.getElementById('LS').classList.add('hd');
-    if(e.code==='auth/popup-blocked')alert('Popup engellendi! Tarayıcıda popup iznine izin verin.');
-    else if(e.code==='auth/unauthorized-domain')alert('Domain yetkili değil. Firebase Console → Authentication → Authorized Domains bölümüne sitenizi ekleyin.');
-    else alert('Giriş başarısız: '+e.message);
+    errEl.style.display='block';
+    if(e.code==='auth/user-not-found'||e.code==='auth/wrong-password'||e.code==='auth/invalid-credential')
+      errEl.textContent='E-posta veya şifre hatalı.';
+    else if(e.code==='auth/invalid-email')
+      errEl.textContent='Geçersiz e-posta adresi.';
+    else
+      errEl.textContent='Giriş başarısız: '+e.message;
+  }
+};
+
+window.doRegister=async()=>{
+  const email=document.getElementById('LG_EMAIL').value.trim();
+  const pass=document.getElementById('LG_PASS').value;
+  const errEl=document.getElementById('LG_ERR');
+  errEl.style.display='none';
+  if(!email||!pass){errEl.textContent='E-posta ve şifre girin.';errEl.style.display='block';return;}
+  if(pass.length<6){errEl.textContent='Şifre en az 6 karakter olmalı.';errEl.style.display='block';return;}
+  try{
+    document.getElementById('LG').classList.add('hd');
+    document.getElementById('LS').classList.remove('hd');
+    document.getElementById('LT').textContent='Hesap oluşturuluyor...';
+    await createUserWithEmailAndPassword(au,email,pass);
+  }catch(e){
+    document.getElementById('LG').classList.remove('hd');
+    document.getElementById('LS').classList.add('hd');
+    errEl.style.display='block';
+    if(e.code==='auth/email-already-in-use')
+      errEl.textContent='Bu e-posta zaten kayıtlı. Giriş yapın.';
+    else if(e.code==='auth/weak-password')
+      errEl.textContent='Şifre çok zayıf, en az 6 karakter girin.';
+    else
+      errEl.textContent='Hesap oluşturulamadı: '+e.message;
   }
 };
 window.SO=async()=>{if(!confirm('Çıkış yapmak istiyor musunuz?'))return;UN2.forEach(u=>u());UN2=[];await signOut(au);};
@@ -545,8 +594,8 @@ onAuthStateChanged(au,async user=>{
   clearTimeout(tid);
   if(user){
     CU=user;UP=user.uid;CM_=mk(new Date());RM=mk(new Date());
-    const av=document.getElementById('UAV');if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
-    document.getElementById('UN').textContent=user.displayName||user.email;
+    const av=document.getElementById('UAV');
+    document.getElementById('UN').textContent=user.email||user.displayName||'Kullanıcı';
     document.getElementById('LG').classList.add('hd');
     document.getElementById('LS').classList.remove('hd');
     document.getElementById('LT').textContent='Veriler yükleniyor...';
@@ -921,7 +970,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 <div class="ov" id="QMO" onclick="window.HO(event,'QMO')"><div class="mo"><div class="mh"></div><div class="mt">Hızlı Şablon</div><div class="fl">Adı</div><input class="fi" type="text" id="QMN" placeholder="örn: Shell Akaryakıt" maxlength="30"><div class="fl">Tutar (₺)</div><input class="fi ai" type="number" id="QMA" placeholder="0,00" min="0" step="0.01"><div class="fl">Emoji</div><input class="fi" type="text" id="QME" placeholder="⛽" maxlength="2" style="text-align:center;font-size:28px"><div class="fl">Kategori</div><div class="cg" id="QMC"></div><button class="sv" onclick="window.SVQM()">Şablonu Kaydet</button><div id="QML" style="margin-top:16px"></div></div></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,setDoc,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FC={apiKey:"AIzaSyCVy4e-wZyFaC4tVtO0Lh9NTiBClM3_clw",authDomain:"butce-takip-ce080.firebaseapp.com",projectId:"butce-takip-ce080",storageBucket:"butce-takip-ce080.firebasestorage.app",messagingSenderId:"128605859646",appId:"1:128605859646:web:5a09cba3f481c2606a466f"};
@@ -1089,7 +1138,7 @@ window.doLogin=async()=>{
     document.getElementById('LG').classList.add('hd');
     document.getElementById('LS').classList.remove('hd');
     document.getElementById('LT').textContent='Google ile giriş yapılıyor...';
-    await signInWithPopup(au,gp);
+    
   }catch(e){
     document.getElementById('LG').classList.remove('hd');
     document.getElementById('LS').classList.add('hd');
@@ -1112,8 +1161,8 @@ onAuthStateChanged(au,async user=>{
   clearTimeout(tid);
   if(user){
     CU=user;UP=user.uid;CM_=mk(new Date());RM=mk(new Date());
-    const av=document.getElementById('UAV');if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
-    document.getElementById('UN').textContent=user.displayName||user.email;
+    const av=document.getElementById('UAV');
+    document.getElementById('UN').textContent=user.email||user.displayName||'Kullanıcı';
     document.getElementById('LG').classList.add('hd');
     document.getElementById('LS').classList.remove('hd');
     document.getElementById('LT').textContent='Veriler yükleniyor...';
@@ -1488,7 +1537,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 <div class="ov" id="QMO" onclick="window.HO(event,'QMO')"><div class="mo"><div class="mh"></div><div class="mt">Hızlı Şablon</div><div class="fl">Adı</div><input class="fi" type="text" id="QMN" placeholder="örn: Shell Akaryakıt" maxlength="30"><div class="fl">Tutar (₺)</div><input class="fi ai" type="number" id="QMA" placeholder="0,00" min="0" step="0.01"><div class="fl">Emoji</div><input class="fi" type="text" id="QME" placeholder="⛽" maxlength="2" style="text-align:center;font-size:28px"><div class="fl">Kategori</div><div class="cg" id="QMC"></div><button class="sv" onclick="window.SVQM()">Şablonu Kaydet</button><div id="QML" style="margin-top:16px"></div></div></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,setDoc,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FC={apiKey:"AIzaSyCVy4e-wZyFaC4tVtO0Lh9NTiBClM3_clw",authDomain:"butce-takip-ce080.firebaseapp.com",projectId:"butce-takip-ce080",storageBucket:"butce-takip-ce080.firebasestorage.app",messagingSenderId:"128605859646",appId:"1:128605859646:web:5a09cba3f481c2606a466f"};
@@ -1656,7 +1705,7 @@ window.doLogin=async()=>{
     document.getElementById('LG').classList.add('hd');
     document.getElementById('LS').classList.remove('hd');
     document.getElementById('LT').textContent='Google ile giriş yapılıyor...';
-    await signInWithPopup(au,gp);
+    
   }catch(e){
     document.getElementById('LG').classList.remove('hd');
     document.getElementById('LS').classList.add('hd');
@@ -1679,8 +1728,8 @@ onAuthStateChanged(au,async user=>{
   clearTimeout(tid);
   if(user){
     CU=user;UP=user.uid;CM_=mk(new Date());RM=mk(new Date());
-    const av=document.getElementById('UAV');if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
-    document.getElementById('UN').textContent=user.displayName||user.email;
+    const av=document.getElementById('UAV');
+    document.getElementById('UN').textContent=user.email||user.displayName||'Kullanıcı';
     document.getElementById('LG').classList.add('hd');
     document.getElementById('LS').classList.remove('hd');
     document.getElementById('LT').textContent='Veriler yükleniyor...';
@@ -2055,7 +2104,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 <div class="ov" id="QMO" onclick="window.HO(event,'QMO')"><div class="mo"><div class="mh"></div><div class="mt">Hızlı Şablon</div><div class="fl">Adı</div><input class="fi" type="text" id="QMN" placeholder="örn: Shell Akaryakıt" maxlength="30"><div class="fl">Tutar (₺)</div><input class="fi ai" type="number" id="QMA" placeholder="0,00" min="0" step="0.01"><div class="fl">Emoji</div><input class="fi" type="text" id="QME" placeholder="⛽" maxlength="2" style="text-align:center;font-size:28px"><div class="fl">Kategori</div><div class="cg" id="QMC"></div><button class="sv" onclick="window.SVQM()">Şablonu Kaydet</button><div id="QML" style="margin-top:16px"></div></div></div>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import{getFirestore,collection,doc,addDoc,updateDoc,deleteDoc,onSnapshot,setDoc,getDocs,writeBatch}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FC={apiKey:"AIzaSyCVy4e-wZyFaC4tVtO0Lh9NTiBClM3_clw",authDomain:"butce-takip-ce080.firebaseapp.com",projectId:"butce-takip-ce080",storageBucket:"butce-takip-ce080.firebasestorage.app",messagingSenderId:"128605859646",appId:"1:128605859646:web:5a09cba3f481c2606a466f"};
@@ -2514,7 +2563,7 @@ window.doLogin = async () => {
     document.getElementById('LG').classList.add('hd');
     document.getElementById('LS').classList.remove('hd');
     document.getElementById('LT').textContent = 'Google ile giriş yapılıyor...';
-    await signInWithPopup(au, gp);
+    await(au, gp);
   } catch (e) {
     document.getElementById('LG').classList.remove('hd');
     document.getElementById('LS').classList.add('hd');
