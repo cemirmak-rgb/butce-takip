@@ -2225,10 +2225,10 @@ function renderTX(mTx){
     var who=t.addedBy?'<span class="wt" style="background:'+(t.addedBy==='pelin'?'var(--psoft)':'var(--asoft)')+';color:'+(t.addedBy==='pelin'?'var(--purple)':'var(--accent)')+'">'+( t.addedBy==='pelin'?'Pelin':'Cem')+'</span>':'';
     var atag=t.isAuto?'<span style="font-size:9px;background:'+(t.isPaid?'var(--asoft)':'var(--border)')+';color:'+(t.isPaid?'var(--accent)':'var(--muted)')+';border-radius:4px;padding:1px 4px;margin-left:4px">'+(t.isPaid?'ödendi':'oto')+'</span>':'';
     var ab='';
-    if(t.isAuto && t.rpk!==undefined){
-      ab='<button class="pb '+(t.isPaid?'un':'')+'" style="font-size:10px;padding:4px 8px" data-rpk="'+t.rpk+'" data-paid="'+(t.isPaid?'1':'0')+'" onclick="window.TRP(this.dataset.rpk,this.dataset.paid==='1')">'+(t.isPaid?'↩':'✓')+'</button>';
-    } else if(!t.isAuto){
-      ab='<button class="txd" data-id="'+t.id+'" onclick="window.DTX(this.dataset.id)">×</button>';
+    if(t.isAuto && t.rpk !== undefined){
+      ab = '<button class="pb ' + (t.isPaid ? 'un' : '') + '" style="font-size:10px;padding:4px 8px" data-rpk="' + t.rpk + '" data-paid="' + (t.isPaid ? '1' : '0') + '" onclick="window.TRP(this.dataset.rpk, this.dataset.paid === \'1\')">' + (t.isPaid ? '↩' : '✓') + '</button>';
+} else if(!t.isAuto){
+    ab = '<button class="txd" data-id="' + t.id + '" onclick="window.DTX(this.dataset.id)">×</button>';
     }
     h+='<div class="txi'+(t.isAuto?' au':'')+'" style="animation-delay:'+i*.03+'s;'+op+'">';
     h+='<div class="txe" style="background:'+bg+'">'+cat.e+'</div>';
