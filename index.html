@@ -2238,26 +2238,82 @@ function renderTX(mTx){
   });
   el.innerHTML=h;
 }
-function renderCC(mCC){
-  const el=document.getElementById('CCL');
-  if(!mCC.length){el.innerHTML='<div class="em"><div class="ei">💳</div><p>Kart borcu eklenmedi.</p></div>';return;}
-  el.innerHTML=mCC.map((c,i)=>{
-    const bk=BK.find(b=>b.id===c.bankId)||BK[5];
-    const ds=c.dueDate?new Date(c.dueDate+'T12:00:00').toLocaleDateString('tr-TR',{day:'numeric',month:'short'}):'';
-    return '<div class="cci'+(c.paid?' pd':'')+'" style="animation-delay:'+i*.06+'s"><div class="cct"><div class="ccic" style="background:'+bk.bg+';color:'+bk.co+'">'+bk.ic+'</div><div class="ccin"><div class="ccb">'+bk.n+'</div><div class="cch">'+bk.h+(c.note?' · '+c.note:'')+'</div></div><div class="ccr"><div class="cca'+(c.paid?' p':'')+'">'+fmt(c.amount)+'</div>'+(ds?'<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: '+ds+'</div>':'')+'</div><button class="ccd" onclick="window.DCC(\''+c.id+'\')">×</button></div><div class="ccs"><div class="sb '+(c.paid?'p':'u')+'">'+(c.paid?'✓ Ödendi':'⏳ Ödenmedi')+'</div><button class="pb'+(c.paid?' un':'')+'" onclick="window.TCP(""+c.id+'",'+c.paid+')'>'+(c.paid?'↩ Geri Al':'✓ Ödendi Yap')+'</button></div></div>';
+function renderCC(mCC) {
+  const el = document.getElementById('CCL');
+  
+  if (!mCC.length) {
+    el.innerHTML = '<div class="em"><div class="ei">💳</div><p>Kart borcu eklenmedi.</p></div>';
+    return;
+  }
+
+  el.innerHTML = mCC.map((c, i) => {
+    const bk = BK.find(b => b.id === c.bankId) || BK[5];
+    const ds = c.dueDate ? new Date(c.dueDate + 'T12:00:00').toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }) : '';
+
+    // Template literals kullanarak tırnak karmaşasından kurtulduk
+    return `
+      <div class="cci ${c.paid ? 'pd' : ''}" style="animation-delay:${i * .06}s">
+        <div class="cct">
+          <div class="ccic" style="background:${bk.bg};color:${bk.co}">${bk.ic}</div>
+          <div class="ccin">
+            <div class="ccb">${bk.n}</div>
+            <div class="cch">${bk.h}${c.note ? ' · ' + c.note : ''}</div>
+          </div>
+          <div class="ccr">
+            <div class="cca ${c.paid ? 'p' : ''}">${fmt(c.amount)}</div>
+            ${ds ? `<div style="font-size:10px;color:var(--muted);margin-top:2px">Son: ${ds}</div>` : ''}
+          </div>
+          <button class="ccd" onclick="window.DCC('${c.id}')">×</button>
+        </div>
+        <div class="ccs">
+          <div class="sb ${c.paid ? 'p' : 'u'}">${c.paid ? '✓ Ödendi' : '⏳ Ödenmedi'}</div>
+          <button class="pb ${c.paid ? 'un' : ''}" onclick="window.TCP('${c.id}', ${c.paid})">
+            ${c.paid ? '↩ Geri Al' : '✓ Ödendi Yap'}
+          </button>
+        </div>
+      </div>`;
   }).join('');
 }
+function renderLN() {
+  const el = document.getElementById('LNL');
+  
+  if (!LN.length) {
+    el.innerHTML = '<div class="em"><div class="ei">🏦</div><p>Kredi eklenmedi.</p></div>';
+    return;
+  }
 
-function renderLN(){
-  const el=document.getElementById('LNL');
-  if(!LN.length){el.innerHTML='<div class="em"><div class="ei">🏦</div><p>Kredi eklenmedi.</p></div>';return;}
-  el.innerHTML=LN.map((l,i)=>{
-    const ip=l.paidMonths&&l.paidMonths.includes(CM_);
-    const pts=l.installments?l.installments.split('/'):['—','—'];
-    return '<div class="lni" style="animation-delay:'+i*.06+'s"><div style="display:flex;align-items:center;gap:10px"><div style="width:42px;height:42px;border-radius:12px;background:var(--bsoft);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏦</div><div style="flex:1"><div style="font-size:14px;font-weight:700">'+l.name+'</div><div style="font-size:11px;color:var(--muted)">Her ayın '+( l.payDay||'?')+'. günü</div></div><div style="text-align:right"><div style="font-size:17px;font-weight:700;color:var(--blue)">'+fmt(l.amount)+'</div><div style="font-size:10px;color:var(--muted)">/ay</div></div><button style="background:var(--bsoft);color:var(--blue);border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;margin-left:8px" onclick="window.ELN(""+l.id+'")'✏️</button><button class="ccd" onclick="window.DLN(\''+l.id+'\')">×</button></div><div style="display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)"><div style="flex:1"><div class="lnc">'+pts[0]+'<span style="font-size:14px;color:var(--muted);font-weight:400">/'+pts[1]+'</span></div><div style="font-size:10px;color:var(--muted)">Kalan / Toplam Taksit</div></div><div class="sb '+(ip?'p':'u')+'">'+(ip?'✓ Ödendi':'⏳ Ödenmedi')+'</div><button class="pb'+(ip?' un':'')+'" onclick="window.TLP(""+l.id+'","'+CM_+'",'+!!ip+')'>'+(ip?'↩ Geri Al':'✓ Ödendi Yap')+'</button></div></div>';
+  el.innerHTML = LN.map((l, i) => {
+    const ip = l.paidMonths && l.paidMonths.includes(CM_);
+    const pts = l.installments ? l.installments.split('/') : ['—', '—'];
+
+    return `
+      <div class="lni" style="animation-delay:${i * .06}s">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:42px;height:42px;border-radius:12px;background:var(--bsoft);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏦</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700">${l.name}</div>
+            <div style="font-size:11px;color:var(--muted)">Her ayın ${l.payDay || '?'} . günü</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:17px;font-weight:700;color:var(--blue)">${fmt(l.amount)}</div>
+            <div style="font-size:10px;color:var(--muted)">/ay</div>
+          </div>
+          <button style="background:var(--bsoft);color:var(--blue);border:none;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;margin-left:8px" onclick="window.ELN('${l.id}')">✏️</button>
+          <button class="ccd" onclick="window.DLN('${l.id}')">×</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+          <div style="flex:1">
+            <div class="lnc">${pts[0]}<span style="font-size:14px;color:var(--muted);font-weight:400">/${pts[1]}</span></div>
+            <div style="font-size:10px;color:var(--muted)">Kalan / Toplam Taksit</div>
+          </div>
+          <div class="sb ${ip ? 'p' : 'u'}">${ip ? '✓ Ödendi' : '⏳ Ödenmedi'}</div>
+          <button class="pb ${ip ? 'un' : ''}" onclick="window.TLP('${l.id}', '${CM_}', ${!!ip})">
+            ${ip ? '↩ Geri Al' : '✓ Ödendi Yap'}
+          </button>
+        </div>
+      </div>`;
   }).join('');
 }
-
 function renderRC(){
   const el=document.getElementById('RCL');
   if(!RC.length){el.innerHTML='<div class="em"><div class="ei">🔁</div><p>Sabit gider eklenmedi.</p></div>';return;}
@@ -2310,19 +2366,34 @@ window.ST2=tab=>{
     document.getElementById(mp[k]).style.display=tab===k?'':'none';
   });
 };
-window.OTX=()=>{TC=null;document.getElementById('TXA').value='';document.getElementById('TXD').value='';document.getElementById('TXDt').value=new Date().toISOString().split('T')[0];window.STT('expense');document.getElementById('TXO').classList.add('op');setTimeout(()=>document.getElementById('TXA').focus(),400);};
-window.STT=t=>{
-  TT=t;TC=null;
-  document.getElementById('BTE').className='tb'+(t==='expense'?' ai2':'');
-  document.getElementById('BTI').className='tb'+(t==='income'?' ae':'');
-  document.getElementById('TXSV').className='sv'+(t==='expense'?' ex':'');
-  document.getElementById('TXSV').textContent=t==='expense'?'💸 Gider Ekle':'💰 Gelir Ekle';
-  const cats=t==='income'?CE.income:CE.expense;
-  document.getElementById('TXC').innerHTML=cats.map(function(c){
-    return '<div class="cb" id="tc-'+c.id+'" onclick="window.STC(''+c.id+'')"><div class="ce">'+c.e+'</div><div class="cl">'+c.l+'</div></div>';
-  }).join('');
+window.OTX = () => {
+  TC = null;
+  document.getElementById('TXA').value = '';
+  document.getElementById('TXD').value = '';
+  document.getElementById('TXDt').value = new Date().toISOString().split('T')[0];
+  window.STT('expense');
+  document.getElementById('TXO').classList.add('op');
+  setTimeout(() => document.getElementById('TXA').focus(), 400);
 };
-window.STC=id=>{TC=id;document.querySelectorAll('#TXC .cb').forEach(e=>e.classList.remove('sel'));document.getElementById('tc-'+id)?.classList.add('sel');};
+
+window.STT = t => {
+  TT = t;
+  TC = null;
+  document.getElementById('BTE').className = 'tb' + (t === 'expense' ? ' ai2' : '');
+  document.getElementById('BTI').className = 'tb' + (t === 'income' ? ' ae' : '');
+  document.getElementById('TXSV').className = 'sv' + (t === 'expense' ? ' ex' : '');
+  document.getElementById('TXSV').textContent = t === 'expense' ? '💸 Gider Ekle' : '💰 Gelir Ekle';
+  
+  const cats = t === 'income' ? CE.income : CE.expense;
+  
+  document.getElementById('TXC').innerHTML = cats.map(c => {
+    // onclick içerisindeki tırnaklar için tek tırnak kullandık ve ID'yi doğru geçirdik
+    return `<div class="cb" id="tc-${c.id}" onclick="window.STC('${c.id}')">
+              <div class="ce">${c.e}</div>
+              <div class="cl">${c.l}</div>
+            </div>`;
+  }).join('');
+};window.STC=id=>{TC=id;document.querySelectorAll('#TXC .cb').forEach(e=>e.classList.remove('sel'));document.getElementById('tc-'+id)?.classList.add('sel');};
 window.SVTX=async(pf)=>{
   const amt=pf?.amount||parseFloat(document.getElementById('TXA').value);
   const dsc=pf?.desc||document.getElementById('TXD').value.trim();
@@ -2355,78 +2426,132 @@ window.TLP=async(id,month,ip)=>{
   else{pm=[...pm,month];if(l.installments){const p=l.installments.split('/');if(p.length===2){const cu2=parseInt(p[0]),tt=parseInt(p[1]);if(!isNaN(cu2)&&!isNaN(tt)&&cu2<tt){const ni=''+(cu2+1)+'/'+tt;await updateDoc(doc(db,'users',UP,'loans',id),{paidMonths:pm,installments:ni});toast('🏦 Taksit: '+ni);return;}}}}
   ss('sy','...');await updateDoc(doc(db,'users',UP,'loans',id),{paidMonths:pm});
 };
-window.ORC=()=>{RTC=null;RF=null;document.getElementById('RCD').value='';document.getElementById('RCA').value='';document.getElementById('RCMo').value='0';window.SRT('expense');document.getElementById('RCF').innerHTML=FR.map(function(f){return '<div class="fb" id="fr-'+f.id+'" onclick="window.SRF(''+f.id+'')">'+f.l+'</div>';}).join('')document.getElementById('WDR').style.display='none';document.getElementById('MDR').style.display='none';document.getElementById('RCO').classList.add('op');};
-window.SRT=t=>{
-  RT=t;RTC=null;
-  document.getElementById('RCE').className='tb'+(t==='expense'?' ai2':'');
-  document.getElementById('RCI').className='tb'+(t==='income'?' ae':'');
-  document.getElementById('RCC2').innerHTML=CE[t==='income'?'income':'expense'].map(function(c){
-    return '<div class="cb" id="rc-'+c.id+'" onclick="window.SRCT(''+c.id+'')"><div class="ce">'+c.e+'</div><div class="cl">'+c.l+'</div></div>';
+window.ORC = () => {
+  RTC = null;
+  RF = null;
+  document.getElementById('RCD').value = '';
+  document.getElementById('RCA').value = '';
+  document.getElementById('RCMo').value = '0';
+  window.SRT('expense');
+  
+  document.getElementById('RCF').innerHTML = FR.map(f => {
+    return `<div class="fb" id="fr-${f.id}" onclick="window.SRF('${f.id}')">${f.l}</div>`;
+  }).join('');
+  
+  document.getElementById('WDR').style.display = 'none';
+  document.getElementById('MDR').style.display = 'none';
+  document.getElementById('RCO').classList.add('op');
+};
+
+window.SRT = t => {
+  RT = t;
+  RTC = null;
+  document.getElementById('RCE').className = 'tb' + (t === 'expense' ? ' ai2' : '');
+  document.getElementById('RCI').className = 'tb' + (t === 'income' ? ' ae' : '');
+  document.getElementById('RCC2').innerHTML = CE[t === 'income' ? 'income' : 'expense'].map(c => {
+    return `<div class="cb" id="rc-${c.id}" onclick="window.SRCT('${c.id}')"><div class="ce">${c.e}</div><div class="cl">${c.l}</div></div>`;
   }).join('');
 };
 
-let aQ=[],aI=0,aT2=null,sT2=null;
-function beep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();function b(f,s,d){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(0,ctx.currentTime+s);g.gain.linearRampToValueAtTime(.4,ctx.currentTime+s+.05);g.gain.linearRampToValueAtTime(0,ctx.currentTime+s+d-.05);o.start(ctx.currentTime+s);o.stop(ctx.currentTime+s+d);}for(let i=0;i<3;i++){b(880,i*.4,.3);b(1100,i*.4+.15,.15);}}catch(e){}}
-window.RNP=async()=>{if(!('Notification'in window))return;if(Notification.permission==='granted'){NP=true;toast('✅ Bildirimler zaten aktif!');return;}if(Notification.permission!=='denied'){const p=await Notification.requestPermission();NP=p==='granted';if(NP)toast('✅ Bildirimler aktif edildi!');}};
-function todayS(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function chkAlarm(){
-  const td=todayS(),tdd=new Date().getDate(),tm=mk(new Date()),alarms=[];
-  CC2.forEach(c=>{if(c.paid||!c.dueDate||c.dueDate!==td)return;const bk=BK.find(b=>b.id===c.bankId)||{n:'KK',ic:'💳',h:''};alarms.push({e:bk.ic,t:bk.n+' - '+bk.h,a:c.amount,s:'Kredi kartı son ödeme günü!',id:c.id});});
-  LN.forEach(l=>{if(l.paidMonths&&l.paidMonths.includes(tm))return;if(l.payDay===tdd)alarms.push({e:'🏦',t:l.name+(l.installments?' ('+l.installments+')':''),a:l.amount,s:'Kredi taksit ödeme günü!',id:'ln_'+l.id});});
-  if(!alarms.length)return;
-  const sk='al_'+td,sh=JSON.parse(sessionStorage.getItem(sk)||'[]');
-  const na=alarms.filter(x=>!sh.includes(x.id));if(!na.length)return;
-  aQ=na;aI=0;showAl(na[0]);sessionStorage.setItem(sk,JSON.stringify([...sh,...na.map(x=>x.id)]));
-}
-function showAl(a){document.getElementById('AE').textContent=a.e;document.getElementById('AT').textContent=a.t;document.getElementById('AA').textContent=fmt(a.a);document.getElementById('AS').textContent=a.s;document.getElementById('AO').style.display='flex';beep();if(NP)try{new Notification('💳 '+a.t,{body:a.s+' · '+fmt(a.a),tag:'bt-alarm',requireInteraction:true});}catch(e){}if(navigator.vibrate)navigator.vibrate([400,200,400,200,400]);clearInterval(aT2);aT2=setInterval(()=>{beep();if(navigator.vibrate)navigator.vibrate([300,150,300]);},8000);}
-window.DA=()=>{clearInterval(aT2);clearTimeout(sT2);aI++;if(aI<aQ.length)setTimeout(()=>showAl(aQ[aI]),400);else document.getElementById('AO').style.display='none';};
-window.SNA=()=>{clearInterval(aT2);document.getElementById('AO').style.display='none';sT2=setTimeout(()=>showAl(aQ[aI]),600000);toast('⏰ 10 dakika sonra tekrar hatırlatılacak');};
+let aQ = [], aI = 0, aT2 = null, sT2 = null;
 
-window.doLogin=async()=>{
-  try{
-    document.getElementById('LG').classList.add('hd');
-    document.getElementById('LS').classList.remove('hd');
-    document.getElementById('LT').textContent='Google ile giriş yapılıyor...';
-    await signInWithPopup(au,gp);
-  }catch(e){
-    document.getElementById('LG').classList.remove('hd');
-    document.getElementById('LS').classList.add('hd');
-    if(e.code==='auth/popup-blocked')alert('Popup engellendi! Tarayıcıda popup iznine izin verin.');
-    else if(e.code==='auth/unauthorized-domain')alert('Domain yetkili değil. Firebase Console → Authentication → Authorized Domains bölümüne sitenizi ekleyin.');
-    else alert('Giriş başarısız: '+e.message);
+function beep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    function b(f, s, d) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.connect(g); g.connect(ctx.destination);
+      o.frequency.value = f; o.type = 'sine';
+      g.gain.setValueAtTime(0, ctx.currentTime + s);
+      g.gain.linearRampToValueAtTime(.4, ctx.currentTime + s + .05);
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + s + d - .05);
+      o.start(ctx.currentTime + s); o.stop(ctx.currentTime + s + d);
+    }
+    for (let i = 0; i < 3; i++) { b(880, i * .4, .3); b(1100, i * .4 + .15, .15); }
+  } catch (e) { }
+}
+
+window.RNP = async () => {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') { NP = true; toast('✅ Bildirimler zaten aktif!'); return; }
+  if (Notification.permission !== 'denied') {
+    const p = await Notification.requestPermission();
+    NP = p === 'granted';
+    if (NP) toast('✅ Bildirimler aktif edildi!');
   }
 };
-window.SO=async()=>{if(!confirm('Çıkış yapmak istiyor musunuz?'))return;UN2.forEach(u=>u());UN2=[];await signOut(au);};
 
-const tid=setTimeout(()=>{
-  if(!document.getElementById('LS').classList.contains('hd')){
-    document.getElementById('LS').classList.add('hd');
-    document.getElementById('LG').classList.remove('hd');
-    document.getElementById('LT').textContent='Zaman aşımı';
-  }
-},8000);
+function todayS() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
 
-onAuthStateChanged(au,async user=>{
-  clearTimeout(tid);
-  if(user){
-    CU=user;UP=user.uid;CM_=mk(new Date());RM=mk(new Date());
-    const av=document.getElementById('UAV');if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
-    document.getElementById('UN').textContent=user.displayName||user.email;
+function chkAlarm() {
+  const td = todayS(), tdd = new Date().getDate(), tm = mk(new Date()), alarms = [];
+  CC2.forEach(c => { if (c.paid || !c.dueDate || c.dueDate !== td) return; const bk = BK.find(b => b.id === c.bankId) || { n: 'KK', ic: '💳', h: '' }; alarms.push({ e: bk.ic, t: bk.n + ' - ' + bk.h, a: c.amount, s: 'Kredi kartı son ödeme günü!', id: c.id }); });
+  LN.forEach(l => { if (l.paidMonths && l.paidMonths.includes(tm)) return; if (l.payDay === tdd) alarms.push({ e: '🏦', t: l.name + (l.installments ? ' (' + l.installments + ')' : ''), a: l.amount, s: 'Kredi taksit ödeme günü!', id: 'ln_' + l.id }); });
+  if (!alarms.length) return;
+  const sk = 'al_' + td, sh = JSON.parse(sessionStorage.getItem(sk) || '[]');
+  const na = alarms.filter(x => !sh.includes(x.id)); if (!na.length) return;
+  aQ = na; aI = 0; showAl(na[0]); sessionStorage.setItem(sk, JSON.stringify([...sh, ...na.map(x => x.id)]));
+}
+
+function showAl(a) {
+  document.getElementById('AE').textContent = a.e; document.getElementById('AT').textContent = a.t; document.getElementById('AA').textContent = fmt(a.a); document.getElementById('AS').textContent = a.s; document.getElementById('AO').style.display = 'flex'; beep();
+  if (NP) try { new Notification('💳 ' + a.t, { body: a.s + ' · ' + fmt(a.a), tag: 'bt-alarm', requireInteraction: true }); } catch (e) { }
+  if (navigator.vibrate) navigator.vibrate([400, 200, 400, 200, 400]);
+  clearInterval(aT2); aT2 = setInterval(() => { beep(); if (navigator.vibrate) navigator.vibrate([300, 150, 300]); }, 8000);
+}
+
+window.DA = () => { clearInterval(aT2); clearTimeout(sT2); aI++; if (aI < aQ.length) setTimeout(() => showAl(aQ[aI]), 400); else document.getElementById('AO').style.display = 'none'; };
+window.SNA = () => { clearInterval(aT2); document.getElementById('AO').style.display = 'none'; sT2 = setTimeout(() => showAl(aQ[aI]), 600000); toast('⏰ 10 dakika sonra tekrar hatırlatılacak'); };
+
+window.doLogin = async () => {
+  try {
     document.getElementById('LG').classList.add('hd');
     document.getElementById('LS').classList.remove('hd');
-    document.getElementById('LT').textContent='Veriler yükleniyor...';
-    try{startL();await Promise.all([seedRC(),seedLN()]);}catch(e){console.warn('Seed error:',e);}
+    document.getElementById('LT').textContent = 'Google ile giriş yapılıyor...';
+    await signInWithPopup(au, gp);
+  } catch (e) {
+    document.getElementById('LG').classList.remove('hd');
     document.getElementById('LS').classList.add('hd');
-    document.getElementById('APP').style.display='';
-    document.getElementById('BN').style.display='flex';
-    document.getElementById('MIC').style.display='flex';
-    window.SN('h');window.ST2('tx');
-    window.RNP();chkAlarm();setInterval(chkAlarm,60000);
-  }else{
-    CU=null;UP='';
-    document.getElementById('APP').style.display='none';
-    document.getElementById('BN').style.display='none';
-    document.getElementById('MIC').style.display='none';
+    if (e.code === 'auth/popup-blocked') alert('Popup engellendi! Tarayıcıda popup iznine izin verin.');
+    else if (e.code === 'auth/unauthorized-domain') alert('Domain yetkili değil. Firebase Console → Authentication → Authorized Domains bölümüne sitenizi ekleyin.');
+    else alert('Giriş başarısız: ' + e.message);
+  }
+};
+
+window.SO = async () => { if (!confirm('Çıkış yapmak istiyor musunuz?')) return; UN2.forEach(u => u()); UN2 = []; await signOut(au); };
+
+const tid = setTimeout(() => {
+  if (!document.getElementById('LS').classList.contains('hd')) {
+    document.getElementById('LS').classList.add('hd');
+    document.getElementById('LG').classList.remove('hd');
+    document.getElementById('LT').textContent = 'Zaman aşımı';
+  }
+}, 8000);
+
+onAuthStateChanged(au, async user => {
+  clearTimeout(tid);
+  if (user) {
+    CU = user; UP = user.uid; CM_ = mk(new Date()); RM = mk(new Date());
+    const av = document.getElementById('UAV'); if (user.photoURL) { av.src = user.photoURL; av.style.display = 'block'; }
+    document.getElementById('UN').textContent = user.displayName || user.email;
+    document.getElementById('LG').classList.add('hd');
+    document.getElementById('LS').classList.remove('hd');
+    document.getElementById('LT').textContent = 'Veriler yükleniyor...';
+    try { startL(); await Promise.all([seedRC(), seedLN()]); } catch (e) { console.warn('Seed error:', e); }
+    document.getElementById('LS').classList.add('hd');
+    document.getElementById('APP').style.display = '';
+    document.getElementById('BN').style.display = 'flex';
+    document.getElementById('MIC').style.display = 'flex';
+    window.SN('h'); window.ST2('tx');
+    window.RNP(); chkAlarm(); setInterval(chkAlarm, 60000);
+  } else {
+    CU = null; UP = '';
+    document.getElementById('APP').style.display = 'none';
+    document.getElementById('BN').style.display = 'none';
+    document.getElementById('MIC').style.display = 'none';
     document.getElementById('LS').classList.add('hd');
     document.getElementById('LG').classList.remove('hd');
   }
